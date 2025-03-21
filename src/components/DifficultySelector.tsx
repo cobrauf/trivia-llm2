@@ -23,8 +23,8 @@ export function DifficultySelector({
               flex-1 px-4 py-2 rounded-lg border capitalize transition-colors
               ${
                 value === difficulty
-                  ? "bg-blue-500 text-white border-transparent"
-                  : "border-gray-300 hover:bg-gray-100"
+                  ? "bg-yellow-500 text-white border-transparent"
+                  : "border-gray-300 hover:bg-gray-500"
               }
             `}
           >

@@ -23,7 +23,7 @@ export function QuestionCountSelector({
       <div className="flex items-center gap-4">
         <button
           onClick={handleDecrement}
-          className="px-3 py-1 rounded-lg border border-gray-300 hover:bg-gray-100"
+          className="px-3 py-1 rounded-lg border border-gray-300 hover:bg-gray-500"
           aria-label="Decrease question count"
         >
           -
@@ -44,7 +44,7 @@ export function QuestionCountSelector({
         />
         <button
           onClick={handleIncrement}
-          className="px-3 py-1 rounded-lg border border-gray-300 hover:bg-gray-100"
+          className="px-3 py-1 rounded-lg border border-gray-300 hover:bg-gray-500"
           aria-label="Increase question count"
         >
           +
