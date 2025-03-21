@@ -20,10 +20,10 @@ export function QuestionCountSelector({
       <label htmlFor="questionCount" className="block text-sm font-medium mb-2">
         Number of Questions
       </label>
-      <div className="flex items-center gap-4">
+      <div className="flex gap-4">
         <button
           onClick={handleDecrement}
-          className="px-3 py-1 rounded-lg border border-gray-300 hover:bg-gray-500"
+          className="flex-1 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-500 active:bg-yellow-500 active:text-white text-xl font-bold transition-colors"
           aria-label="Decrease question count"
         >
           -
@@ -33,18 +33,18 @@ export function QuestionCountSelector({
           id="questionCount"
           value={value}
           onChange={(e) => {
-            const newValue = parseInt(e.target.value);
-            if (newValue >= 5 && newValue <= 20) {
+            const newValue = parseInt(e.target.value, 10);
+            if (!isNaN(newValue) && newValue >= 5 && newValue <= 20) {
               onChange(newValue);
             }
           }}
           min={5}
           max={20}
-          className="w-20 text-center px-2 py-1 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="flex-1 text-center px-2 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
         <button
           onClick={handleIncrement}
-          className="px-3 py-1 rounded-lg border border-gray-300 hover:bg-gray-500"
+          className="flex-1 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-500 active:bg-yellow-500 active:text-white text-xl font-bold transition-colors"
           aria-label="Increase question count"
         >
           +
