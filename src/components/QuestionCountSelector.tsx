@@ -50,7 +50,7 @@ export function QuestionCountSelector({
           +
         </button>
       </div>
-      <p className="text-xs text-gray-500 mt-1">Min: 5, Max: 20 questions</p>
+      <p className="text-xs text-gray-400 mt-1">Min: 5, Max: 20 questions</p>
     </div>
   );
 }
