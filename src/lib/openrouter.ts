@@ -6,6 +6,8 @@ import {
 } from "@/schemas/question";
 import { QUIZ_CONSTANTS, DifficultyLevel } from "@/constants/quiz";
 
+const LLM_MODEL = "google/gemini-2.0-pro-exp-02-05:free";
+
 const OpenRouterResponseSchema = z.object({
   choices: z.array(
     z.object({
@@ -79,7 +81,7 @@ export async function generateQuestions(
         "X-Title": "Trivia Question Generator",
       },
       body: JSON.stringify({
-        model: "mistralai/mistral-7b-instruct",
+        model: LLM_MODEL,
         messages: [
           {
             role: "system",
@@ -92,7 +94,7 @@ export async function generateQuestions(
           },
         ],
         temperature: 0.7,
-        max_tokens: 1000,
+        max_tokens: 10000,
       }),
     }
   );
