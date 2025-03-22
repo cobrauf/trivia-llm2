@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# environment
+.env*.local
+
 # production
 /build
 
