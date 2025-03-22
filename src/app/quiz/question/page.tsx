@@ -4,11 +4,11 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Question } from "@/schemas/question";
 
-interface QuestionWithShuffledAnswers extends Question {
+export interface QuestionWithShuffledAnswers extends Question {
   shuffledAnswers: string[];
 }
 
-interface AnsweredQuestion {
+export interface AnsweredQuestion {
   questionIndex: number;
   selectedAnswer: string;
   isCorrect: boolean;
@@ -32,13 +32,13 @@ const useTypewriter = (text: string, questionIndex: number, speed = 50) => {
     }
 
     setIsTyping(true);
-    // Start with the first character
-    setDisplayedText(text.charAt(0));
-    let index = 1;
+    let currentText = "";
+    let index = 0;
 
     const type = () => {
       if (index < text.length) {
-        setDisplayedText((prev) => prev + text.charAt(index));
+        currentText += text.charAt(index);
+        setDisplayedText(currentText);
         index++;
         setTimeout(type, speed);
       } else {
@@ -47,12 +47,8 @@ const useTypewriter = (text: string, questionIndex: number, speed = 50) => {
       }
     };
 
-    if (text.length > 1) {
-      setTimeout(type, speed);
-    } else {
-      setIsTyping(false);
-      seenQuestionsRef.current.add(questionIndex);
-    }
+    // Start typing immediately
+    type();
   }, [text, speed, questionIndex]);
 
   useEffect(() => {
@@ -120,15 +116,35 @@ export default function QuestionPage() {
 
     const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
 
-    setAnsweredQuestions((prev) => [
-      ...prev,
+    const newAnsweredQuestions = [
+      ...answeredQuestions,
       {
         questionIndex: currentQuestionIndex,
         selectedAnswer,
         isCorrect,
         showExplanation: true,
       },
-    ]);
+    ];
+    setAnsweredQuestions(newAnsweredQuestions);
+
+    // Store in session storage
+    sessionStorage.setItem(
+      "quiz_answers",
+      JSON.stringify(
+        newAnsweredQuestions.map(
+          ({ questionIndex, selectedAnswer, isCorrect }) => ({
+            questionIndex,
+            selectedAnswer,
+            isCorrect,
+          })
+        )
+      )
+    );
+
+    // If all questions are answered, redirect to summary
+    if (newAnsweredQuestions.length === questions.length) {
+      router.push("/quiz/summary");
+    }
   };
 
   const handleNavigation = (direction: "back" | "forward") => {
