@@ -34,10 +34,30 @@ export default function LoadingPage() {
                 "quiz_questions",
                 JSON.stringify(questions)
               );
+
+              // Make sure the isComplete flag is set properly
               sessionStorage.setItem("quiz_complete", isComplete.toString());
 
-              // Navigate to quiz page
-              router.push("/quiz/question");
+              // Only navigate to question page on first call (when first question is ready)
+              if (!isComplete) {
+                // Navigate to quiz page
+                router.push("/quiz/question");
+              } else {
+                // If we already navigated, just update the stored data
+                // This ensures the storage event is triggered
+                const existingData = sessionStorage.getItem("quiz_questions");
+                if (existingData) {
+                  // Force a storage event by setting with the same key
+                  sessionStorage.setItem(
+                    "quiz_questions",
+                    JSON.stringify(questions)
+                  );
+                  sessionStorage.setItem("quiz_complete", "true");
+
+                  // Explicitly trigger a storage event for the current window
+                  window.dispatchEvent(new Event("storage"));
+                }
+              }
             }
           },
           (error) => {

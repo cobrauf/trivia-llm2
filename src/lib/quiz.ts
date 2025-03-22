@@ -1,5 +1,5 @@
 export const QUIZ_CONSTANTS = {
-  MIN_QUESTIONS: 1,
+  MIN_QUESTIONS: 3,
   MAX_QUESTIONS: 10,
   DIFFICULTY_LEVELS: {
     ROOKIE: "rookie",

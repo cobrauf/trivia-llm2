@@ -95,6 +95,59 @@ export default function QuestionPage() {
     setIsLoadingMore(!isComplete);
   }, [router]);
 
+  // Add a listener for storage changes to detect when remaining questions are loaded
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const isComplete = sessionStorage.getItem("quiz_complete") === "true";
+
+      // Update the loading status if needed
+      if (isComplete) {
+        setIsLoadingMore(false);
+
+        // Update questions with any new ones that have been added
+        const storedQuestions = sessionStorage.getItem("quiz_questions");
+        if (storedQuestions) {
+          try {
+            const parsedQuestions = JSON.parse(storedQuestions) as Question[];
+
+            // Only update if the parsed questions are different or if there are more of them
+            if (parsedQuestions.length > questions.length) {
+              console.log(
+                "Updating questions from storage, new count:",
+                parsedQuestions.length
+              );
+              const questionsWithRandomizedAnswers: QuestionWithShuffledAnswers[] =
+                parsedQuestions.map((q) => ({
+                  ...q,
+                  shuffledAnswers: [
+                    q.correctAnswer,
+                    ...q.incorrectAnswers,
+                  ].sort(() => Math.random() - 0.5),
+                }));
+              setQuestions(questionsWithRandomizedAnswers);
+            }
+          } catch (error) {
+            console.error("Error parsing stored questions:", error);
+          }
+        }
+      }
+    };
+
+    // Check initially
+    handleStorageChange();
+
+    // Add event listener for storage events
+    window.addEventListener("storage", handleStorageChange);
+
+    // Setup polling as a fallback since storage events don't fire in the same tab
+    const intervalId = setInterval(handleStorageChange, 1000);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(intervalId);
+    };
+  }, [questions.length]);
+
   const currentQuestion = questions[currentQuestionIndex];
   const { displayedText: typedQuestion, isTyping } = useTypewriter(
     currentQuestion?.question || "",
@@ -127,6 +180,12 @@ export default function QuestionPage() {
     ];
     setAnsweredQuestions(newAnsweredQuestions);
 
+    // Check if we need to update the loading status
+    const isComplete = sessionStorage.getItem("quiz_complete") === "true";
+    if (isComplete && isLoadingMore) {
+      setIsLoadingMore(false);
+    }
+
     // Store in session storage
     // Store both answers and questions to preserve shuffled answers
     sessionStorage.setItem(
@@ -152,9 +211,15 @@ export default function QuestionPage() {
       direction === "forward" &&
       answeredQuestions.some((q) => q.questionIndex === currentQuestionIndex)
     ) {
-      if (currentQuestionIndex === questions.length - 1) {
+      // Check if we need to update the loading status
+      const isComplete = sessionStorage.getItem("quiz_complete") === "true";
+      if (isComplete && isLoadingMore) {
+        setIsLoadingMore(false);
+      }
+
+      if (currentQuestionIndex === questions.length - 1 && !isLoadingMore) {
         router.push("/quiz/summary");
-      } else {
+      } else if (currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex((prev) => prev + 1);
         setSelectedAnswer(null);
       }
@@ -185,7 +250,7 @@ export default function QuestionPage() {
           </button>
           <div>
             Question {currentQuestionIndex + 1} of {questions.length}
-            {isLoadingMore && " (Loading more...)"}
+            {isLoadingMore ? " (Loading more...)" : " (Finished fetching)"}
           </div>
           <button
             onClick={() => handleNavigation("forward")}
@@ -199,12 +264,21 @@ export default function QuestionPage() {
                 answeredQuestions.some(
                   (q) => q.questionIndex === currentQuestionIndex
                 )
-                  ? "bg-blue-500 hover:bg-blue-600"
+                  ? currentQuestionIndex === questions.length - 1 &&
+                    !isLoadingMore
+                    ? "bg-green-500 hover:bg-green-600"
+                    : "bg-blue-500 hover:bg-blue-600"
                   : "bg-purple-800 hover:bg-purple-700"
               }
               disabled:bg-gray-600 disabled:hover:bg-gray-600`}
           >
-            {currentQuestionIndex === questions.length - 1 ? "Score" : "Next"}
+            {answeredQuestions.some(
+              (q) => q.questionIndex === currentQuestionIndex
+            ) &&
+            currentQuestionIndex === questions.length - 1 &&
+            !isLoadingMore
+              ? "Score"
+              : "Next"}
           </button>
         </div>
 

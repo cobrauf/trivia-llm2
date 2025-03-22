@@ -70,18 +70,9 @@ export default function QuizSummaryPage() {
           {questions.map((question, index) => {
             const answer = answeredQuestions[index];
             return (
-              <div key={index} className="p-4 rounded-lg bg-purple-800/50">
-                <div className="flex justify-between items-center mb-2">
-                  <div className="font-semibold">
-                    Question {index + 1}: {question.question}
-                  </div>
-                  <div
-                    className={`ml-4 text-xl ${
-                      answer.isCorrect ? "text-green-400" : "text-orange-400"
-                    }`}
-                  >
-                    {answer.isCorrect ? "✓" : "✗"}
-                  </div>
+              <div key={index} className="p-4 rounded-lg bg-purple-900">
+                <div className="font-semibold mb-2">
+                  Question {index + 1}: {question.question}
                 </div>
                 <div className="space-y-2 mt-4">
                   {(
@@ -101,11 +92,22 @@ export default function QuizSummaryPage() {
                     return (
                       <div
                         key={i}
-                        className={`px-4 py-2 rounded ${
+                        className={`flex justify-between items-center px-4 py-2 rounded ${
                           showBorder ? `border-2 ${borderColor}` : ""
                         }`}
                       >
-                        {`${String.fromCharCode(65 + i)}: ${ans}`}
+                        <div>{`${String.fromCharCode(65 + i)}: ${ans}`}</div>
+                        {isUserAnswer && (
+                          <div
+                            className={`ml-4 text-xl ${
+                              answer.isCorrect
+                                ? "text-green-500"
+                                : "text-red-600"
+                            }`}
+                          >
+                            {answer.isCorrect ? "✓" : "✗"}
+                          </div>
+                        )}
                       </div>
                     );
                   })}
