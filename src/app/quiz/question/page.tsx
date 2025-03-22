@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Question } from "@/schemas/question";
 
@@ -16,14 +16,25 @@ interface AnsweredQuestion {
 }
 
 // Move the useTypewriter hook outside the component
-const useTypewriter = (text: string, speed = 50) => {
+const useTypewriter = (text: string, questionIndex: number, speed = 50) => {
   const [displayedText, setDisplayedText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const seenQuestionsRef = useRef<Set<number>>(new Set());
 
   const startTyping = useCallback(() => {
-    setDisplayedText(""); // Reset text
+    if (!text) return;
+
+    if (seenQuestionsRef.current.has(questionIndex)) {
+      // If we've seen this question before, show it immediately
+      setDisplayedText(text);
+      setIsTyping(false);
+      return;
+    }
+
     setIsTyping(true);
-    let index = 0;
+    // Start with the first character
+    setDisplayedText(text.charAt(0));
+    let index = 1;
 
     const type = () => {
       if (index < text.length) {
@@ -32,11 +43,17 @@ const useTypewriter = (text: string, speed = 50) => {
         setTimeout(type, speed);
       } else {
         setIsTyping(false);
+        seenQuestionsRef.current.add(questionIndex);
       }
     };
 
-    type(); // Start typing immediately
-  }, [text, speed]);
+    if (text.length > 1) {
+      setTimeout(type, speed);
+    } else {
+      setIsTyping(false);
+      seenQuestionsRef.current.add(questionIndex);
+    }
+  }, [text, speed, questionIndex]);
 
   useEffect(() => {
     if (text) {
@@ -85,6 +102,7 @@ export default function QuestionPage() {
   const currentQuestion = questions[currentQuestionIndex];
   const { displayedText: typedQuestion, isTyping } = useTypewriter(
     currentQuestion?.question || "",
+    currentQuestionIndex,
     30
   );
 
