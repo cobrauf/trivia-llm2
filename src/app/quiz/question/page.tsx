@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Question } from "@/schemas/question";
 
+interface QuestionWithShuffledAnswers extends Question {
+  shuffledAnswers: string[];
+}
+
 interface AnsweredQuestion {
   questionIndex: number;
   selectedAnswer: string;
@@ -13,7 +17,7 @@ interface AnsweredQuestion {
 
 export default function QuestionPage() {
   const router = useRouter();
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions] = useState<QuestionWithShuffledAnswers[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [answeredQuestions, setAnsweredQuestions] = useState<
@@ -31,7 +35,17 @@ export default function QuestionPage() {
       return;
     }
 
-    setQuestions(JSON.parse(storedQuestions));
+    const parsedQuestions = JSON.parse(storedQuestions) as Question[];
+    // Randomize answers for each question once when loading
+    const questionsWithRandomizedAnswers: QuestionWithShuffledAnswers[] =
+      parsedQuestions.map((q) => ({
+        ...q,
+        shuffledAnswers: [q.correctAnswer, ...q.incorrectAnswers].sort(
+          () => Math.random() - 0.5
+        ),
+      }));
+
+    setQuestions(questionsWithRandomizedAnswers);
     setIsLoadingMore(!isComplete);
   }, [router]);
 
@@ -68,7 +82,8 @@ export default function QuestionPage() {
       setSelectedAnswer(null);
     } else if (
       direction === "forward" &&
-      currentQuestionIndex < questions.length - 1
+      currentQuestionIndex < questions.length - 1 &&
+      answeredQuestions.some((q) => q.questionIndex === currentQuestionIndex)
     ) {
       setCurrentQuestionIndex((prev) => prev + 1);
       setSelectedAnswer(null);
@@ -83,10 +98,7 @@ export default function QuestionPage() {
     return <div>Loading...</div>;
   }
 
-  const allAnswers = [
-    currentQuestion.correctAnswer,
-    ...currentQuestion.incorrectAnswers,
-  ].sort(() => Math.random() - 0.5);
+  const allAnswers: string[] = currentQuestion.shuffledAnswers;
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">

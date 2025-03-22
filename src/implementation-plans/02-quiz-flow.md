@@ -108,6 +108,7 @@ interface QuizState {
    // pages/quiz/question.tsx
    - Display current question
    - Handle answer selection
+
    - Show explanation after confirmation
    - Enable navigation for answered questions
    ```
