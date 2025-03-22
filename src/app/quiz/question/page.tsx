@@ -140,11 +140,6 @@ export default function QuestionPage() {
         )
       )
     );
-
-    // If all questions are answered, redirect to summary
-    if (newAnsweredQuestions.length === questions.length) {
-      router.push("/quiz/summary");
-    }
   };
 
   const handleNavigation = (direction: "back" | "forward") => {
@@ -153,11 +148,14 @@ export default function QuestionPage() {
       setSelectedAnswer(null);
     } else if (
       direction === "forward" &&
-      currentQuestionIndex < questions.length - 1 &&
       answeredQuestions.some((q) => q.questionIndex === currentQuestionIndex)
     ) {
-      setCurrentQuestionIndex((prev) => prev + 1);
-      setSelectedAnswer(null);
+      if (currentQuestionIndex === questions.length - 1) {
+        router.push("/quiz/summary");
+      } else {
+        setCurrentQuestionIndex((prev) => prev + 1);
+        setSelectedAnswer(null);
+      }
     }
   };
 
@@ -190,7 +188,6 @@ export default function QuestionPage() {
           <button
             onClick={() => handleNavigation("forward")}
             disabled={
-              currentQuestionIndex === questions.length - 1 ||
               !answeredQuestions.some(
                 (q) => q.questionIndex === currentQuestionIndex
               )
@@ -199,13 +196,13 @@ export default function QuestionPage() {
               ${
                 answeredQuestions.some(
                   (q) => q.questionIndex === currentQuestionIndex
-                ) && currentQuestionIndex < questions.length - 1
+                )
                   ? "bg-blue-500 hover:bg-blue-600"
                   : "bg-purple-800 hover:bg-purple-700"
               }
               disabled:bg-gray-600 disabled:hover:bg-gray-600`}
           >
-            Next
+            {currentQuestionIndex === questions.length - 1 ? "Score" : "Next"}
           </button>
         </div>
 
