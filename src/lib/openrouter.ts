@@ -33,6 +33,9 @@ function generatePrompt(params: QuestionGenerationParams): string {
   } level.
 
 For each question:
+- Question text must be no more than 50 words
+- Each answer (correct and incorrect) must be no more than 10 words
+- Explanation must be no more than 30 words
 - Ensure factual accuracy
 - Provide one correct answer
 - Provide exactly three incorrect but plausible answers

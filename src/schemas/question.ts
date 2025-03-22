@@ -18,11 +18,33 @@ export const QuestionGenerationSchema = z.object({
 
 export type QuestionGenerationParams = z.infer<typeof QuestionGenerationSchema>;
 
+// Helper function to count words
+function countWords(str: string): number {
+  return str.trim().split(/\s+/).length;
+}
+
+// Custom validators for word count
+const maxWords = (limit: number) => (value: string) => {
+  const wordCount = countWords(value);
+  return (
+    wordCount <= limit ||
+    `Text exceeds ${limit} words (found ${wordCount} words)`
+  );
+};
+
 export const QuestionSchema = z.object({
-  question: z.string(),
-  correctAnswer: z.string(),
-  incorrectAnswers: z.array(z.string()).length(3),
-  explanation: z.string(),
+  question: z
+    .string()
+    .refine(maxWords(50), "Question must not exceed 50 words"),
+  correctAnswer: z
+    .string()
+    .refine(maxWords(10), "Answer must not exceed 10 words"),
+  incorrectAnswers: z
+    .array(z.string().refine(maxWords(10), "Answer must not exceed 10 words"))
+    .length(3),
+  explanation: z
+    .string()
+    .refine(maxWords(30), "Explanation must not exceed 30 words"),
 });
 
 export type Question = z.infer<typeof QuestionSchema>;
