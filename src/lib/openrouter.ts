@@ -4,6 +4,7 @@ import {
   Question,
   QuestionSchema,
 } from "@/schemas/question";
+import { QUIZ_CONSTANTS, DifficultyLevel } from "@/constants/quiz";
 
 const OpenRouterResponseSchema = z.object({
   choices: z.array(
@@ -17,13 +18,23 @@ const OpenRouterResponseSchema = z.object({
 });
 
 function generatePrompt(params: QuestionGenerationParams): string {
-  return `Generate ${params.questionCount} multiple choice trivia questions about ${params.topic} at ${params.difficulty} difficulty level.
+  const difficultyMap: Record<DifficultyLevel, string> = {
+    [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ROOKIE]: "beginner",
+    [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.SEASONED]: "intermediate",
+    [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ELITE]: "advanced",
+  };
+
+  return `Generate ${
+    params.questionCount
+  } multiple choice trivia questions about ${params.topic} at ${
+    difficultyMap[params.difficulty]
+  } level.
 
 For each question:
 - Ensure factual accuracy
 - Provide one correct answer
 - Provide exactly three incorrect but plausible answers
-- Make ${params.difficulty} level appropriate
+- Make ${difficultyMap[params.difficulty]} level appropriate
 - Include a brief explanation of why the correct answer is right
 - Format as JSON array matching this structure:
 [{

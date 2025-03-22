@@ -4,15 +4,15 @@ import { useState } from "react";
 import { TopicSelector } from "@/components/TopicSelector";
 import { QuestionCountSelector } from "@/components/QuestionCountSelector";
 import { DifficultySelector } from "@/components/DifficultySelector";
-import { QUIZ_CONSTANTS } from "@/constants/quiz";
+import { QUIZ_CONSTANTS, DifficultyLevel } from "@/constants/quiz";
 
 export default function Home() {
   const [topic, setTopic] = useState("");
   const [questionCount, setQuestionCount] = useState<number>(
     QUIZ_CONSTANTS.MAX_QUESTIONS
   );
-  const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">(
-    "medium"
+  const [difficulty, setDifficulty] = useState<DifficultyLevel>(
+    QUIZ_CONSTANTS.DIFFICULTY_LEVELS.SEASONED
   );
 
   const handleSubmit = () => {
