@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Question } from "@/schemas/question";
 
@@ -14,6 +14,39 @@ interface AnsweredQuestion {
   isCorrect: boolean;
   showExplanation: boolean;
 }
+
+// Move the useTypewriter hook outside the component
+const useTypewriter = (text: string, speed = 50) => {
+  const [displayedText, setDisplayedText] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+
+  const startTyping = useCallback(() => {
+    setDisplayedText(""); // Reset text
+    setIsTyping(true);
+    let index = 0;
+
+    const type = () => {
+      if (index < text.length) {
+        setDisplayedText((prev) => prev + text.charAt(index));
+        index++;
+        setTimeout(type, speed);
+      } else {
+        setIsTyping(false);
+      }
+    };
+
+    type(); // Start typing immediately
+  }, [text, speed]);
+
+  useEffect(() => {
+    if (text) {
+      // Only start typing if there is text to type
+      startTyping();
+    }
+  }, [text, startTyping]);
+
+  return { displayedText, isTyping };
+};
 
 export default function QuestionPage() {
   const router = useRouter();
@@ -50,6 +83,10 @@ export default function QuestionPage() {
   }, [router]);
 
   const currentQuestion = questions[currentQuestionIndex];
+  const { displayedText: typedQuestion, isTyping } = useTypewriter(
+    currentQuestion?.question || "",
+    30
+  );
 
   const handleAnswerSelect = (answer: string) => {
     if (
@@ -139,7 +176,14 @@ export default function QuestionPage() {
         </div>
 
         {/* Question */}
-        <div className="text-xl mb-8">{currentQuestion.question}</div>
+        <div className="text-xl mb-8">
+          {typedQuestion}
+          {isTyping && (
+            <span className="ml-1 animate-[pulse_1s_ease-in-out_infinite]">
+              |
+            </span>
+          )}
+        </div>
 
         {/* Answers */}
         <div className="space-y-4">
