@@ -108,7 +108,7 @@ export default function QuestionPage() {
           <button
             onClick={() => handleNavigation("back")}
             disabled={currentQuestionIndex === 0}
-            className="px-4 py-2 rounded bg-purple-800 hover:bg-purple-700 border-1 border-white disabled:opacity-50 disabled:hover:bg-purple-800"
+            className="px-4 py-2 rounded border-1 border-white transition-colors bg-purple-800 hover:bg-purple-700 disabled:bg-gray-600 disabled:hover:bg-gray-600"
           >
             Back
           </button>
@@ -118,8 +118,21 @@ export default function QuestionPage() {
           </div>
           <button
             onClick={() => handleNavigation("forward")}
-            disabled={currentQuestionIndex === questions.length - 1}
-            className="px-4 py-2 rounded bg-purple-800 hover:bg-purple-700 border-1 border-white disabled:opacity-50 disabled:hover:bg-purple-800"
+            disabled={
+              currentQuestionIndex === questions.length - 1 ||
+              !answeredQuestions.some(
+                (q) => q.questionIndex === currentQuestionIndex
+              )
+            }
+            className={`px-4 py-2 rounded border-1 border-white transition-colors
+              ${
+                answeredQuestions.some(
+                  (q) => q.questionIndex === currentQuestionIndex
+                ) && currentQuestionIndex < questions.length - 1
+                  ? "bg-blue-500 hover:bg-blue-600"
+                  : "bg-purple-800 hover:bg-purple-700"
+              }
+              disabled:bg-gray-600 disabled:hover:bg-gray-600`}
           >
             Next
           </button>
@@ -157,7 +170,7 @@ export default function QuestionPage() {
                   }
                 `}
               >
-                {answer}
+                {`${String.fromCharCode(65 + index)}: ${answer}`}
               </button>
             );
           })}
