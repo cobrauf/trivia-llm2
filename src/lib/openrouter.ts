@@ -19,18 +19,30 @@ const OpenRouterResponseSchema = z.object({
   ),
 });
 
-function generatePrompt(params: QuestionGenerationParams): string {
+interface QuestionGenerationOptions {
+  generateInitialQuestion?: boolean;
+}
+
+function generatePrompt(
+  params: QuestionGenerationParams,
+  options: QuestionGenerationOptions = {}
+): string {
   const difficultyMap: Record<DifficultyLevel, string> = {
     [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ROOKIE]: "beginner",
     [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.SEASONED]: "intermediate",
     [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ELITE]: "advanced",
   };
 
-  return `Generate ${
-    params.questionCount
-  } multiple choice trivia questions about ${params.topic} at ${
-    difficultyMap[params.difficulty]
-  } level.
+  const questionCount = options.generateInitialQuestion
+    ? 1
+    : params.questionCount - 1;
+  const prefix = options.generateInitialQuestion
+    ? "Generate 1 initial"
+    : `Generate ${questionCount} additional`;
+
+  return `${prefix} multiple choice trivia question${
+    questionCount > 1 ? "s" : ""
+  } about ${params.topic} at ${difficultyMap[params.difficulty]} level.
 
 For each question:
 - Ensure factual accuracy
@@ -63,8 +75,24 @@ function parseQuestionsFromResponse(content: string): Question[] {
   }
 }
 
-export async function generateQuestions(
+export async function generateInitialQuestion(
   params: QuestionGenerationParams
+): Promise<Question[]> {
+  return generateQuestions(params, { generateInitialQuestion: true });
+}
+
+export async function generateRemainingQuestions(
+  params: QuestionGenerationParams
+): Promise<Question[]> {
+  if (params.questionCount <= 1) {
+    return [];
+  }
+  return generateQuestions(params, { generateInitialQuestion: false });
+}
+
+export async function generateQuestions(
+  params: QuestionGenerationParams,
+  options: QuestionGenerationOptions = {}
 ): Promise<Question[]> {
   if (!process.env.OPENROUTER_API_KEY) {
     throw new Error("OPENROUTER_API_KEY environment variable is not set");
@@ -90,7 +118,7 @@ export async function generateQuestions(
           },
           {
             role: "user",
-            content: generatePrompt(params),
+            content: generatePrompt(params, options),
           },
         ],
         temperature: 0.7,

@@ -13,6 +13,7 @@ export const QuestionGenerationSchema = z.object({
     .int()
     .min(QUIZ_CONSTANTS.MIN_QUESTIONS)
     .max(QUIZ_CONSTANTS.MAX_QUESTIONS),
+  remaining: z.boolean().optional(),
 });
 
 export type QuestionGenerationParams = z.infer<typeof QuestionGenerationSchema>;
