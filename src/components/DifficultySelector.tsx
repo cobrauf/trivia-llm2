@@ -1,15 +1,20 @@
 type Difficulty = "easy" | "medium" | "hard";
+import { QUIZ_CONSTANTS, DifficultyLevel } from "@/constants/quiz";
 
 interface DifficultySelectorProps {
-  value: Difficulty;
-  onChange: (value: Difficulty) => void;
+  value: DifficultyLevel;
+  onChange: (value: DifficultyLevel) => void;
 }
 
 export function DifficultySelector({
   value,
   onChange,
 }: DifficultySelectorProps) {
-  const difficulties: Difficulty[] = ["easy", "medium", "hard"];
+  const difficulties: DifficultyLevel[] = [
+    QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ROOKIE,
+    QUIZ_CONSTANTS.DIFFICULTY_LEVELS.SEASONED,
+    QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ELITE,
+  ];
 
   return (
     <div className="w-full">
