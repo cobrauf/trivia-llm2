@@ -108,7 +108,7 @@ export default function QuestionPage() {
           <button
             onClick={() => handleNavigation("back")}
             disabled={currentQuestionIndex === 0}
-            className="px-4 py-2 rounded bg-purple-800 disabled:opacity-50"
+            className="px-4 py-2 rounded bg-purple-800 hover:bg-purple-700 border-1 border-white disabled:opacity-50 disabled:hover:bg-purple-800"
           >
             Back
           </button>
@@ -119,7 +119,7 @@ export default function QuestionPage() {
           <button
             onClick={() => handleNavigation("forward")}
             disabled={currentQuestionIndex === questions.length - 1}
-            className="px-4 py-2 rounded bg-purple-800 disabled:opacity-50"
+            className="px-4 py-2 rounded bg-purple-800 hover:bg-purple-700 border-1 border-white disabled:opacity-50 disabled:hover:bg-purple-800"
           >
             Next
           </button>
@@ -141,11 +141,10 @@ export default function QuestionPage() {
                 onClick={() => handleAnswerSelect(answer)}
                 disabled={answeredQuestion !== undefined}
                 className={`
-                  w-full p-4 rounded-lg text-left transition-colors
+                  w-full p-4 rounded-lg text-left transition-all
+                  border-1 border-white
                   ${
-                    isSelected
-                      ? "border-2 border-blue-400"
-                      : "border-2 border-transparent"
+                    isSelected ? "shadow-[0_0_10px_5px_rgba(59,130,246,1)]" : ""
                   }
                   ${
                     showResult
@@ -169,7 +168,9 @@ export default function QuestionPage() {
           <button
             onClick={handleConfirmAnswer}
             disabled={!selectedAnswer}
-            className="w-full mt-6 px-6 py-3 rounded-lg bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:hover:bg-blue-500"
+            className={`w-full mt-6 px-6 py-3 rounded-lg border-0 border-white ${
+              selectedAnswer ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-700"
+            } disabled:opacity-50`}
           >
             Confirm Answer
           </button>
