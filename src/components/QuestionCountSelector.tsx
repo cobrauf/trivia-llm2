@@ -1,4 +1,4 @@
-import { QUIZ_CONSTANTS } from "@/constants/quiz";
+import { QUIZ_CONSTANTS } from "@/lib/quiz";
 
 interface QuestionCountSelectorProps {
   value: number;

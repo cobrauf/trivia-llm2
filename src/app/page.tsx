@@ -4,7 +4,7 @@ import { useState } from "react";
 import { TopicSelector } from "@/components/TopicSelector";
 import { QuestionCountSelector } from "@/components/QuestionCountSelector";
 import { DifficultySelector } from "@/components/DifficultySelector";
-import { QUIZ_CONSTANTS, DifficultyLevel } from "@/constants/quiz";
+import { QUIZ_CONSTANTS, DifficultyLevel } from "@/lib/quiz";
 import { Question } from "@/schemas/question";
 import { generateQuestionsSequentially } from "@/services/questionService";
 

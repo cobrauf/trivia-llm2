@@ -1,5 +1,5 @@
 type Difficulty = "easy" | "medium" | "hard";
-import { QUIZ_CONSTANTS, DifficultyLevel } from "@/constants/quiz";
+import { QUIZ_CONSTANTS, DifficultyLevel } from "@/lib/quiz";
 
 interface DifficultySelectorProps {
   value: DifficultyLevel;

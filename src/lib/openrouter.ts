@@ -4,7 +4,7 @@ import {
   Question,
   QuestionSchema,
 } from "@/schemas/question";
-import { QUIZ_CONSTANTS, DifficultyLevel } from "@/constants/quiz";
+import { QUIZ_CONSTANTS, DifficultyLevel } from "@/lib/quiz";
 
 const LLM_MODEL = "google/gemini-2.0-flash-exp:free";
 
