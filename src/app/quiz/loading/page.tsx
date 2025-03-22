@@ -1,0 +1,83 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { DifficultyLevel } from "@/lib/quiz";
+import { generateQuestionsSequentially } from "@/services/questionService";
+
+const LoadingSpinner = () => (
+  <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" />
+);
+
+export default function LoadingPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const topic = searchParams.get("topic") || "";
+  const questionCount = parseInt(searchParams.get("questionCount") || "5", 10);
+  const difficulty =
+    (searchParams.get("difficulty") as DifficultyLevel) || "seasoned";
+
+  useEffect(() => {
+    const startQuizGeneration = async () => {
+      try {
+        const params = { topic, questionCount, difficulty };
+
+        // Initialize question generation
+        generateQuestionsSequentially(
+          params,
+          ({ questions, isComplete }) => {
+            // When first question is ready, move to the quiz page
+            if (questions.length > 0) {
+              // Store questions in sessionStorage
+              sessionStorage.setItem(
+                "quiz_questions",
+                JSON.stringify(questions)
+              );
+              sessionStorage.setItem("quiz_complete", isComplete.toString());
+
+              // Navigate to quiz page
+              router.push("/quiz/question");
+            }
+          },
+          (error) => {
+            console.error("Error generating questions:", error);
+            // TODO: Handle error state
+          }
+        );
+      } catch (error) {
+        console.error("Error starting quiz:", error);
+        // TODO: Handle error state
+      }
+    };
+
+    startQuizGeneration();
+  }, [topic, questionCount, difficulty, router]);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8 p-8 rounded-xl bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900 text-white text-center">
+        <h1 className="text-2xl font-bold mb-6">Preparing Your Quiz...</h1>
+
+        <div className="flex justify-center mb-8">
+          <LoadingSpinner />
+        </div>
+
+        <div className="space-y-4 text-left">
+          <div>
+            <span className="font-medium">Topic:</span>
+            <span className="ml-2">{topic}</span>
+          </div>
+          <div>
+            <span className="font-medium">Questions:</span>
+            <span className="ml-2">{questionCount}</span>
+          </div>
+          <div>
+            <span className="font-medium">Difficulty:</span>
+            <span className="ml-2 capitalize">{difficulty}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
