@@ -248,9 +248,11 @@ export default function QuestionPage() {
           >
             Back
           </button>
-          <div>
-            Question {currentQuestionIndex + 1} of {questions.length}
-            {isLoadingMore ? " (Loading more...)" : " (Finished fetching)"}
+          <div className="text-center">
+            <div>Question</div>
+            <div>
+              {currentQuestionIndex + 1} of {questions.length}
+            </div>
           </div>
           <button
             onClick={() => handleNavigation("forward")}
