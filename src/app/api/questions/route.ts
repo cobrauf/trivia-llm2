@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
 import { QuestionGenerationSchema } from "@/schemas/question";
-import {
-  generateInitialQuestion,
-  generateRemainingQuestions,
-} from "@/lib/openrouter";
+import { generateQuestions } from "@/lib/openrouter";
 import { z } from "zod";
 
 export async function POST(request: Request) {
@@ -11,12 +8,13 @@ export async function POST(request: Request) {
     const body = await request.json();
     const params = QuestionGenerationSchema.parse(body);
 
-    // Check if this is a request for remaining questions
-    const isRemainingRequest = body.remaining === true;
+    // Determine how many questions to generate based on whether this is a remaining request
+    const questionCount = body.remaining ? params.questionCount - 1 : 1;
 
-    const questions = isRemainingRequest
-      ? await generateRemainingQuestions(params)
-      : await generateInitialQuestion(params);
+    const questions = await generateQuestions({
+      ...params,
+      questionCount,
+    });
 
     return NextResponse.json({ questions });
   } catch (error) {

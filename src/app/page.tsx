@@ -6,6 +6,7 @@ import { QuestionCountSelector } from "@/components/QuestionCountSelector";
 import { DifficultySelector } from "@/components/DifficultySelector";
 import { QUIZ_CONSTANTS, DifficultyLevel } from "@/constants/quiz";
 import { Question } from "@/schemas/question";
+import { generateQuestionsSequentially } from "@/services/questionService";
 
 export default function Home() {
   const [topic, setTopic] = useState("");
@@ -24,55 +25,17 @@ export default function Home() {
     setError(null);
     setQuestions([]);
 
-    try {
-      // Request initial question
-      const initialResponse = await fetch("/api/questions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          topic,
-          questionCount,
-          difficulty,
-        }),
-      });
-
-      if (!initialResponse.ok) {
-        throw new Error("Failed to fetch initial question");
+    await generateQuestionsSequentially(
+      { topic, questionCount, difficulty },
+      ({ questions: newQuestions, isComplete }) => {
+        setQuestions(newQuestions);
+        setLoading(!isComplete);
+      },
+      (error) => {
+        setError(error);
+        setLoading(false);
       }
-
-      const initialData = await initialResponse.json();
-      setQuestions(initialData.questions);
-
-      // Request remaining questions
-      const remainingResponse = await fetch("/api/questions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          topic,
-          questionCount,
-          difficulty,
-          remaining: true,
-        }),
-      });
-
-      if (!remainingResponse.ok) {
-        throw new Error("Failed to fetch remaining questions");
-      }
-
-      const remainingData = await remainingResponse.json();
-      setQuestions((prevQuestions) => [
-        ...prevQuestions,
-        ...remainingData.questions,
-      ]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
-    }
+    );
   };
 
   return (

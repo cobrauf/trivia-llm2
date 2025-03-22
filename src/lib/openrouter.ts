@@ -19,30 +19,18 @@ const OpenRouterResponseSchema = z.object({
   ),
 });
 
-interface QuestionGenerationOptions {
-  generateInitialQuestion?: boolean;
-}
-
-function generatePrompt(
-  params: QuestionGenerationParams,
-  options: QuestionGenerationOptions = {}
-): string {
+function generatePrompt(params: QuestionGenerationParams): string {
   const difficultyMap: Record<DifficultyLevel, string> = {
     [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ROOKIE]: "beginner",
     [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.SEASONED]: "intermediate",
     [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ELITE]: "advanced",
   };
 
-  const questionCount = options.generateInitialQuestion
-    ? 1
-    : params.questionCount - 1;
-  const prefix = options.generateInitialQuestion
-    ? "Generate 1 initial"
-    : `Generate ${questionCount} additional`;
-
-  return `${prefix} multiple choice trivia question${
-    questionCount > 1 ? "s" : ""
-  } about ${params.topic} at ${difficultyMap[params.difficulty]} level.
+  return `Generate ${
+    params.questionCount
+  } multiple choice trivia questions about ${params.topic} at ${
+    difficultyMap[params.difficulty]
+  } level.
 
 For each question:
 - Ensure factual accuracy
@@ -75,24 +63,8 @@ function parseQuestionsFromResponse(content: string): Question[] {
   }
 }
 
-export async function generateInitialQuestion(
-  params: QuestionGenerationParams
-): Promise<Question[]> {
-  return generateQuestions(params, { generateInitialQuestion: true });
-}
-
-export async function generateRemainingQuestions(
-  params: QuestionGenerationParams
-): Promise<Question[]> {
-  if (params.questionCount <= 1) {
-    return [];
-  }
-  return generateQuestions(params, { generateInitialQuestion: false });
-}
-
 export async function generateQuestions(
-  params: QuestionGenerationParams,
-  options: QuestionGenerationOptions = {}
+  params: QuestionGenerationParams
 ): Promise<Question[]> {
   if (!process.env.OPENROUTER_API_KEY) {
     throw new Error("OPENROUTER_API_KEY environment variable is not set");
@@ -118,7 +90,7 @@ export async function generateQuestions(
           },
           {
             role: "user",
-            content: generatePrompt(params, options),
+            content: generatePrompt(params),
           },
         ],
         temperature: 0.7,
@@ -132,7 +104,6 @@ export async function generateQuestions(
     throw new Error(`OpenRouter API error: ${error}`);
   }
 
-  // Validate response
   const result = OpenRouterResponseSchema.parse(await response.json());
   const questions = parseQuestionsFromResponse(
     result.choices[0].message.content
