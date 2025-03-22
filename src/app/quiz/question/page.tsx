@@ -162,11 +162,11 @@ export default function QuestionPage() {
                   ${
                     showResult
                       ? isCorrect
-                        ? "bg-green-600"
+                        ? "bg-green-700"
                         : answer === answeredQuestion?.selectedAnswer
-                        ? "bg-red-600"
-                        : "bg-purple-800"
-                      : "bg-purple-800 hover:bg-purple-700"
+                        ? "bg-orange-700"
+                        : "bg-purple-900"
+                      : "bg-purple-900 hover:bg-purple-700"
                   }
                 `}
               >
