@@ -128,6 +128,7 @@ export default function QuestionPage() {
     setAnsweredQuestions(newAnsweredQuestions);
 
     // Store in session storage
+    // Store both answers and questions to preserve shuffled answers
     sessionStorage.setItem(
       "quiz_answers",
       JSON.stringify(
@@ -140,6 +141,7 @@ export default function QuestionPage() {
         )
       )
     );
+    sessionStorage.setItem("quiz_questions", JSON.stringify(questions));
   };
 
   const handleNavigation = (direction: "back" | "forward") => {

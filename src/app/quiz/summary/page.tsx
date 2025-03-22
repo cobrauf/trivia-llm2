@@ -18,6 +18,8 @@ export default function QuizSummaryPage() {
     AnsweredQuestion[]
   >([]);
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const storedQuestions = sessionStorage.getItem("quiz_questions");
     const storedAnswers = sessionStorage.getItem("quiz_answers");
@@ -27,9 +29,27 @@ export default function QuizSummaryPage() {
       return;
     }
 
-    setQuestions(JSON.parse(storedQuestions));
-    setAnsweredQuestions(JSON.parse(storedAnswers));
+    try {
+      const parsedQuestions = JSON.parse(storedQuestions);
+      const parsedAnswers = JSON.parse(storedAnswers);
+      setQuestions(parsedQuestions);
+      setAnsweredQuestions(parsedAnswers);
+    } catch (error) {
+      console.error("Error parsing stored data:", error);
+      router.replace("/");
+      return;
+    }
+
+    setLoading(false);
   }, [router]);
+
+  if (loading || questions.length === 0 || answeredQuestions.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
 
   const score = answeredQuestions.filter((q) => q.isCorrect).length;
   const totalQuestions = questions.length;
@@ -51,21 +71,45 @@ export default function QuizSummaryPage() {
             const answer = answeredQuestions[index];
             return (
               <div key={index} className="p-4 rounded-lg bg-purple-800/50">
-                <div className="font-semibold mb-2">
-                  Question {index + 1}: {question.question}
-                </div>
-                <div
-                  className={`pl-4 ${
-                    answer.isCorrect ? "text-green-400" : "text-orange-400"
-                  }`}
-                >
-                  Your answer: {answer.selectedAnswer}
-                </div>
-                {!answer.isCorrect && (
-                  <div className="pl-4 text-green-400">
-                    Correct answer: {question.correctAnswer}
+                <div className="flex justify-between items-center mb-2">
+                  <div className="font-semibold">
+                    Question {index + 1}: {question.question}
                   </div>
-                )}
+                  <div
+                    className={`ml-4 text-xl ${
+                      answer.isCorrect ? "text-green-400" : "text-orange-400"
+                    }`}
+                  >
+                    {answer.isCorrect ? "✓" : "✗"}
+                  </div>
+                </div>
+                <div className="space-y-2 mt-4">
+                  {(
+                    question.shuffledAnswers || [
+                      question.correctAnswer,
+                      ...question.incorrectAnswers,
+                    ]
+                  ).map((ans, i) => {
+                    const isUserAnswer = ans === answer.selectedAnswer;
+                    const isCorrectAnswer = ans === question.correctAnswer;
+                    const showBorder =
+                      isUserAnswer || (isCorrectAnswer && !answer.isCorrect);
+                    const borderColor = isCorrectAnswer
+                      ? "border-green-400"
+                      : "border-orange-400";
+
+                    return (
+                      <div
+                        key={i}
+                        className={`px-4 py-2 rounded ${
+                          showBorder ? `border-2 ${borderColor}` : ""
+                        }`}
+                      >
+                        {`${String.fromCharCode(65 + i)}: ${ans}`}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             );
           })}
