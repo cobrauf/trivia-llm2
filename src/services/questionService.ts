@@ -46,6 +46,8 @@ export async function generateQuestionsSequentially(
         body: JSON.stringify({
           ...params,
           remaining: true,
+          // Pass the initial question to avoid duplicates
+          initialQuestion: initialData.questions[0],
         }),
       });
 

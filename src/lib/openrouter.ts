@@ -20,20 +20,32 @@ const OpenRouterResponseSchema = z.object({
   ),
 });
 
-function generatePrompt(params: QuestionGenerationParams): string {
+function generatePrompt(
+  params: QuestionGenerationParams,
+  initialQuestion?: any
+): string {
   const difficultyMap: Record<DifficultyLevel, string> = {
     [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ROOKIE]: "beginner",
     [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.PRO]: "intermediate",
     [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ELITE]: "advanced",
   };
 
-  return `Generate ${
+  let prompt = `Generate ${
     params.questionCount
   } multiple choice trivia questions about ${params.topic} at ${
     difficultyMap[params.difficulty]
-  } level.
+  } level.`;
 
-For each question:
+  // If initialQuestion is provided, add instructions to avoid duplicating it
+  if (initialQuestion) {
+    prompt += `\n\nAvoid generating a question similar to the following:
+Question: "${initialQuestion.question}"
+Answer: "${initialQuestion.correctAnswer}"
+
+Generate completely different questions both in topic and wording.`;
+  }
+
+  prompt += `\n\nFor each question:
 - Question text must be no more than 50 words
 - Each answer (correct and incorrect) must be no more than 10 words
 - Explanation must be no more than 50 words
@@ -49,6 +61,8 @@ For each question:
   "incorrectAnswers": ["wrong1", "wrong2", "wrong3"],
   "explanation": "brief explanation of why the correct answer is right"
 }]`;
+
+  return prompt;
 }
 
 function parseQuestionsFromResponse(content: string): Question[] {
@@ -68,7 +82,7 @@ function parseQuestionsFromResponse(content: string): Question[] {
 }
 
 export async function generateQuestions(
-  params: QuestionGenerationParams
+  params: QuestionGenerationParams & { initialQuestion?: any }
 ): Promise<Question[]> {
   if (!process.env.OPENROUTER_API_KEY) {
     throw new Error("OPENROUTER_API_KEY environment variable is not set");
@@ -94,11 +108,13 @@ export async function generateQuestions(
           },
           {
             role: "user",
-            content: generatePrompt(params),
+            content: generatePrompt(params, params.initialQuestion),
           },
         ],
         temperature: 0.7,
         max_tokens: 10000,
+        // Add cache control to avoid returning cached results
+        cache: params.initialQuestion ? "none" : undefined,
       }),
     }
   );

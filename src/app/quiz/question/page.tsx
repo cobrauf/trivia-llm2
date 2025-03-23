@@ -116,15 +116,43 @@ export default function QuestionPage() {
                 "Updating questions from storage, new count:",
                 parsedQuestions.length
               );
-              const questionsWithRandomizedAnswers: QuestionWithShuffledAnswers[] =
-                parsedQuestions.map((q) => ({
-                  ...q,
-                  shuffledAnswers: [
-                    q.correctAnswer,
-                    ...q.incorrectAnswers,
-                  ].sort(() => Math.random() - 0.5),
-                }));
-              setQuestions(questionsWithRandomizedAnswers);
+
+              // Preserve the first question if we already have questions
+              if (questions.length > 0) {
+                const updatedQuestions = [...parsedQuestions];
+
+                // Replace the first question with our existing first question
+                if (updatedQuestions.length > 0 && questions.length > 0) {
+                  updatedQuestions[0] = {
+                    ...questions[0],
+                    // We need to strip off the shuffledAnswers, as it's not part of the original Question type
+                    question: questions[0].question,
+                    correctAnswer: questions[0].correctAnswer,
+                    incorrectAnswers: questions[0].incorrectAnswers,
+                    explanation: questions[0].explanation,
+                  };
+                }
+
+                const questionsWithRandomizedAnswers: QuestionWithShuffledAnswers[] =
+                  updatedQuestions.map((q) => ({
+                    ...q,
+                    shuffledAnswers: [
+                      q.correctAnswer,
+                      ...q.incorrectAnswers,
+                    ].sort(() => Math.random() - 0.5),
+                  }));
+                setQuestions(questionsWithRandomizedAnswers);
+              } else {
+                const questionsWithRandomizedAnswers: QuestionWithShuffledAnswers[] =
+                  parsedQuestions.map((q) => ({
+                    ...q,
+                    shuffledAnswers: [
+                      q.correctAnswer,
+                      ...q.incorrectAnswers,
+                    ].sort(() => Math.random() - 0.5),
+                  }));
+                setQuestions(questionsWithRandomizedAnswers);
+              }
             }
           } catch (error) {
             console.error("Error parsing stored questions:", error);
@@ -283,6 +311,21 @@ export default function QuestionPage() {
               : "Next"}
           </button>
         </div>
+
+        {/* Loading indicator for remaining questions */}
+        {isLoadingMore && (
+          <div className="text-center text-sm mb-2 text-purple-200 flex items-center justify-center">
+            <div className="animate-spin mr-2 h-4 w-4 border-2 border-purple-200 rounded-full border-t-transparent"></div>
+            Fetching remaining questions...
+          </div>
+        )}
+
+        {/* Show message when finished loading */}
+        {!isLoadingMore && questions.length > 1 && (
+          <div className="text-center text-sm mb-2 text-green-300">
+            ✓ All questions loaded
+          </div>
+        )}
 
         {/* Question */}
         <div className="h-[120px] mb-1 flex items-center justify-left">

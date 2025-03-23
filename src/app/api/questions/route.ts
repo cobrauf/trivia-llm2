@@ -11,9 +11,15 @@ export async function POST(request: Request) {
     // Determine how many questions to generate based on whether this is a remaining request
     const questionCount = body.remaining ? params.questionCount - 1 : 1;
 
+    // If this is a remaining request and we have an initial question,
+    // pass it to avoid duplicates
+    const initialQuestion =
+      body.remaining && body.initialQuestion ? body.initialQuestion : undefined;
+
     const questions = await generateQuestions({
       ...params,
       questionCount,
+      initialQuestion,
     });
 
     return NextResponse.json({ questions });
