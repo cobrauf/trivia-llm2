@@ -6,7 +6,8 @@ import {
 } from "@/schemas/question";
 import { QUIZ_CONSTANTS, DifficultyLevel } from "@/lib/quiz";
 
-const LLM_MODEL = "google/gemini-2.0-flash-exp:free";
+// const LLM_MODEL = "google/gemini-2.0-flash-exp:free";
+const LLM_MODEL = "google/gemini-2.0-flash-thinking-exp:free";
 
 const OpenRouterResponseSchema = z.object({
   choices: z.array(

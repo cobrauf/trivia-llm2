@@ -287,14 +287,14 @@ export default function QuestionPage() {
         {/* Question */}
         <div className="h-[120px] mb-1 flex items-center justify-left">
           <div
-            // className={`text-center transition-all ${
-            //   typedQuestion.length > 100
-            //     ? "text-base"
-            //     : typedQuestion.length > 50
-            //     ? "text-lg"
-            //     : "text-2xl"
-            // }`}
-            className="text-left transition-all text-lg"
+            className={`text-left transition-all ${
+              typedQuestion.length > 100
+                ? "text-base"
+                : typedQuestion.length > 50
+                ? "text-lg"
+                : "text-lg"
+            }`}
+            // className="text-left transition-all text-lg"
           >
             {typedQuestion}
             {isTyping && (

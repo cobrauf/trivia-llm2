@@ -10,9 +10,7 @@ import { QUIZ_CONSTANTS, DifficultyLevel } from "@/lib/quiz";
 export default function Home() {
   const router = useRouter();
   const [topic, setTopic] = useState("");
-  const [questionCount, setQuestionCount] = useState<number>(
-    QUIZ_CONSTANTS.MAX_QUESTIONS
-  );
+  const [questionCount, setQuestionCount] = useState<number>(5);
   const [difficulty, setDifficulty] = useState<DifficultyLevel>(
     QUIZ_CONSTANTS.DIFFICULTY_LEVELS.PRO
   );
