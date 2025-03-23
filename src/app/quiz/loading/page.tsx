@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DifficultyLevel } from "@/lib/quiz";
 import { generateQuestionsSequentially } from "@/services/questionService";
@@ -9,7 +9,8 @@ const LoadingSpinner = () => (
   <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" />
 );
 
-export default function LoadingPage() {
+// Component that uses the search params
+function LoadingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -101,5 +102,41 @@ export default function LoadingPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Fallback for when the component is loading
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8 p-8 rounded-xl bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900 text-white text-center">
+        <h1 className="text-2xl font-bold mb-6">
+          Getting Your Trivia Ready...
+        </h1>
+
+        <div className="flex justify-center mb-8">
+          <LoadingSpinner />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main export that uses Suspense
+export default function LoadingPage() {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return <LoadingFallback />;
+  }
+
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <LoadingContent />
+    </Suspense>
   );
 }
