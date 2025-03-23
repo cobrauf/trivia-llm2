@@ -1,5 +1,7 @@
+"use client";
+
 import { useMemo } from "react";
-import { getRandomizedTopics } from "@/data/suggestedTopics";
+import { TOPIC_CATEGORIES } from "@/data/suggestedTopics";
 import { TopicButton } from "./TopicButton";
 
 interface ScrollingTopicsProps {
@@ -7,37 +9,65 @@ interface ScrollingTopicsProps {
 }
 
 export function ScrollingTopics({ onTopicSelect }: ScrollingTopicsProps) {
-  const [row1Topics, row2Topics] = useMemo(() => getRandomizedTopics(), []);
+  // Client-side randomization
+  const [row1Topics, row2Topics] = useMemo(() => {
+    return TOPIC_CATEGORIES.map((category) =>
+      [...category.topics].sort(() => Math.random() - 0.5)
+    ) as [string[], string[]];
+  }, []);
 
-  // Duplicate topics for seamless scrolling
-  const row1Content = [...row1Topics, ...row1Topics];
-  const row2Content = [...row2Topics, ...row2Topics];
+  const getScrollDuration = (topics: string[]) => {
+    // Calculate approximate width (each topic ~150px + gap)
+    const distance = topics.length * 170;
+    return distance / 100; // Speed factor - increase denominator to make faster
+  };
+
+  const row1Duration = getScrollDuration(row1Topics);
+  const row2Duration = getScrollDuration(row2Topics);
 
   return (
-    <div className="w-full space-y-2 mb-2">
-      {/* First row - scrolling right */}
-      <div className="overflow-hidden fade-edges">
-        <div className="flex whitespace-nowrap scroll-right">
-          {row1Content.map((topic, index) => (
-            <TopicButton
-              key={`${topic}-${index}`}
-              topic={topic}
-              onSelect={onTopicSelect}
-            />
-          ))}
+    <div className="w-full mb-8">
+      <div className="space-y-3">
+        {/* First row - scrolling right */}
+        <div className="overflow-hidden py-1">
+          <div className="relative">
+            <div
+              className="flex items-center whitespace-nowrap gap-3 px-3"
+              style={{
+                animation: `scroll-right ${row1Duration}s linear infinite`,
+                willChange: "transform",
+              }}
+            >
+              {row1Topics.map((topic, index) => (
+                <TopicButton
+                  key={`${topic}-${index}`}
+                  topic={topic}
+                  onSelect={onTopicSelect}
+                />
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Second row - scrolling left */}
-      <div className="overflow-hidden fade-edges">
-        <div className="flex whitespace-nowrap scroll-left">
-          {row2Content.map((topic, index) => (
-            <TopicButton
-              key={`${topic}-${index}`}
-              topic={topic}
-              onSelect={onTopicSelect}
-            />
-          ))}
+        {/* Second row - scrolling left */}
+        <div className="overflow-hidden py-1">
+          <div className="relative">
+            <div
+              className="flex items-center whitespace-nowrap gap-3 px-3"
+              style={{
+                animation: `scroll-left ${row2Duration}s linear infinite`,
+                willChange: "transform",
+              }}
+            >
+              {row2Topics.map((topic, index) => (
+                <TopicButton
+                  key={`${topic}-${index}`}
+                  topic={topic}
+                  onSelect={onTopicSelect}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

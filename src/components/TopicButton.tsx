@@ -17,7 +17,7 @@ export function TopicButton({ topic, onSelect }: TopicButtonProps) {
         whitespace-nowrap
         transition-colors
         duration-200
-        border border-purple-500/30
+        border border-purple-500
         backdrop-blur-sm
       "
     >

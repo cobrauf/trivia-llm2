@@ -32,42 +32,17 @@ body {
     transform: translateX(0);
   }
   to {
-    transform: translateX(-50%);
+    transform: translateX(-100%);
   }
 }
 
 @keyframes scroll-right {
   from {
-    transform: translateX(-50%);
-  }
-  to {
     transform: translateX(0);
   }
-}
-
-.scroll-left {
-  animation: scroll-left 5s linear infinite;
-}
-
-.scroll-right {
-  animation: scroll-right 5s linear infinite;
-}
-
-.fade-edges {
-  mask-image: linear-gradient(
-    to right,
-    transparent,
-    black 10%,
-    black 90%,
-    transparent
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent,
-    black 10%,
-    black 90%,
-    transparent
-  );
+  to {
+    transform: translateX(100%);
+  }
 }
 
 /* Pause animations when user prefers reduced motion */
