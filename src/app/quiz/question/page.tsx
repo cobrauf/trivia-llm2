@@ -152,7 +152,7 @@ export default function QuestionPage() {
   const { displayedText: typedQuestion, isTyping } = useTypewriter(
     currentQuestion?.question || "",
     currentQuestionIndex,
-    30
+    10
   );
 
   const handleAnswerSelect = (answer: string) => {
@@ -285,15 +285,16 @@ export default function QuestionPage() {
         </div>
 
         {/* Question */}
-        <div className="h-[120px] mb-1 flex items-center justify-center">
+        <div className="h-[120px] mb-1 flex items-center justify-left">
           <div
-            className={`text-center transition-all ${
-              typedQuestion.length > 100
-                ? "text-base"
-                : typedQuestion.length > 50
-                ? "text-lg"
-                : "text-2xl"
-            }`}
+            // className={`text-center transition-all ${
+            //   typedQuestion.length > 100
+            //     ? "text-base"
+            //     : typedQuestion.length > 50
+            //     ? "text-lg"
+            //     : "text-2xl"
+            // }`}
+            className="text-left transition-all text-lg"
           >
             {typedQuestion}
             {isTyping && (
