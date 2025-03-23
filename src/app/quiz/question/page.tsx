@@ -70,6 +70,7 @@ export default function QuestionPage() {
     AnsweredQuestion[]
   >([]);
   const [isLoadingMore, setIsLoadingMore] = useState(true);
+  const [showLoadedMessage, setShowLoadedMessage] = useState(false);
 
   useEffect(() => {
     // Load questions from sessionStorage
@@ -175,6 +176,17 @@ export default function QuestionPage() {
       clearInterval(intervalId);
     };
   }, [questions.length]);
+
+  // Handle showing and hiding the "All questions generated" message
+  useEffect(() => {
+    if (!isLoadingMore && questions.length > 1) {
+      setShowLoadedMessage(true);
+      const timer = setTimeout(() => {
+        setShowLoadedMessage(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoadingMore, questions.length]);
 
   const currentQuestion = questions[currentQuestionIndex];
   const { displayedText: typedQuestion, isTyping } = useTypewriter(
@@ -314,16 +326,15 @@ export default function QuestionPage() {
 
         {/* Loading indicator for remaining questions */}
         {isLoadingMore && (
-          <div className="text-center text-sm mb-2 text-purple-200 flex items-center justify-center">
-            <div className="animate-spin mr-2 h-4 w-4 border-2 border-purple-200 rounded-full border-t-transparent"></div>
-            Fetching remaining questions...
+          <div className="text-center text-xs text-purple-200 flex items-center justify-center">
+            <div className="animate-spin mr-2 h-2 w-2 border-2 border-purple-200 rounded-full border-t-transparent"></div>
+            Generating remaining questions...
           </div>
         )}
-
         {/* Show message when finished loading */}
-        {!isLoadingMore && questions.length > 1 && (
-          <div className="text-center text-sm mb-2 text-green-300">
-            ✓ All questions loaded
+        {!isLoadingMore && questions.length > 1 && showLoadedMessage && (
+          <div className="text-center text-xs text-green-300">
+            ✓ All questions generated
           </div>
         )}
 
