@@ -9,15 +9,13 @@ interface ScrollingTopicsProps {
 }
 
 export function ScrollingTopics({ onTopicSelect }: ScrollingTopicsProps) {
-  // Get all topics from all categories
-  const allTopics = useMemo(() => {
-    // Flatten all categories to get a single array of topics
-    const allTopics = TOPIC_CATEGORIES.flatMap((category) => category.topics);
+  // Get topics from each category separately
+  const categoryTopics = useMemo(() => {
+    // Use the first category for row 1
+    const row1 = TOPIC_CATEGORIES[0].topics;
 
-    // Create two arrays for row1 and row2 with all topics
-    const halfLength = Math.ceil(allTopics.length / 2);
-    const row1 = allTopics.slice(0, halfLength);
-    const row2 = allTopics.slice(halfLength);
+    // Use the second category for row 2
+    const row2 = TOPIC_CATEGORIES[1].topics;
 
     return [row1, row2] as [string[], string[]];
   }, []);
@@ -28,8 +26,8 @@ export function ScrollingTopics({ onTopicSelect }: ScrollingTopicsProps) {
     return distance / 100; // Speed factor - increased denominator from 100 to 200 to make faster
   };
 
-  const row1Duration = getScrollDuration(allTopics[0]);
-  const row2Duration = getScrollDuration(allTopics[1]);
+  const row1Duration = getScrollDuration(categoryTopics[0]);
+  const row2Duration = getScrollDuration(categoryTopics[1]);
 
   return (
     <div className="w-full mb-4">
@@ -48,7 +46,7 @@ export function ScrollingTopics({ onTopicSelect }: ScrollingTopicsProps) {
               }}
             >
               {/* Show the topics once */}
-              {allTopics[0].map((topic, index) => (
+              {categoryTopics[0].map((topic, index) => (
                 <TopicButton
                   key={`${topic}-${index}`}
                   topic={topic}
@@ -56,7 +54,7 @@ export function ScrollingTopics({ onTopicSelect }: ScrollingTopicsProps) {
                 />
               ))}
               {/* Duplicate the topics to create a seamless loop */}
-              {allTopics[0].map((topic, index) => (
+              {categoryTopics[0].map((topic, index) => (
                 <TopicButton
                   key={`${topic}-dup-${index}`}
                   topic={topic}
@@ -77,7 +75,7 @@ export function ScrollingTopics({ onTopicSelect }: ScrollingTopicsProps) {
               }}
             >
               {/* Show the topics once */}
-              {allTopics[1].map((topic, index) => (
+              {categoryTopics[1].map((topic, index) => (
                 <TopicButton
                   key={`${topic}-${index}`}
                   topic={topic}
@@ -85,7 +83,7 @@ export function ScrollingTopics({ onTopicSelect }: ScrollingTopicsProps) {
                 />
               ))}
               {/* Duplicate the topics to create a seamless loop */}
-              {allTopics[1].map((topic, index) => (
+              {categoryTopics[1].map((topic, index) => (
                 <TopicButton
                   key={`${topic}-dup-${index}`}
                   topic={topic}
