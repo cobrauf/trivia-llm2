@@ -46,11 +46,11 @@ body {
 }
 
 .scroll-left {
-  animation: scroll-left 30s linear infinite;
+  animation: scroll-left 5s linear infinite;
 }
 
 .scroll-right {
-  animation: scroll-right 25s linear infinite;
+  animation: scroll-right 5s linear infinite;
 }
 
 .fade-edges {

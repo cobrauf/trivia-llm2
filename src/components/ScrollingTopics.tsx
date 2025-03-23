@@ -14,7 +14,7 @@ export function ScrollingTopics({ onTopicSelect }: ScrollingTopicsProps) {
   const row2Content = [...row2Topics, ...row2Topics];
 
   return (
-    <div className="w-full space-y-2 mb-6">
+    <div className="w-full space-y-2 mb-2">
       {/* First row - scrolling right */}
       <div className="overflow-hidden fade-edges">
         <div className="flex whitespace-nowrap scroll-right">
