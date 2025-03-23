@@ -19,13 +19,16 @@ export function QuestionCountSelector({
 
   return (
     <div className="w-full">
-      <label htmlFor="questionCount" className="block text-sm font-medium mb-2">
+      <label
+        htmlFor="questionCount"
+        className="block text-sm font-medium mb-1 text-purple-200"
+      >
         Number of Questions
       </label>
-      <div className="flex gap-4">
+      <div className="flex gap-2">
         <button
           onClick={handleDecrement}
-          className="flex-1 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-500 active:bg-yellow-500 active:text-white text-xl font-bold transition-colors"
+          className="flex-1 px-3 py-1.5 rounded-lg border border-purple-500/20 bg-purple-900/50 hover:bg-purple-700/50 active:bg-purple-600 text-white text-lg font-bold transition-colors"
           aria-label="Decrease question count"
         >
           -
@@ -46,17 +49,17 @@ export function QuestionCountSelector({
           }}
           min={QUIZ_CONSTANTS.MIN_QUESTIONS}
           max={QUIZ_CONSTANTS.MAX_QUESTIONS}
-          className="flex-1 text-center px-2 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="flex-1 text-center px-2 py-2 rounded-lg border border-purple-500/20 bg-purple-900/50 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
         <button
           onClick={handleIncrement}
-          className="flex-1 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-500 active:bg-yellow-500 active:text-white text-xl font-bold transition-colors"
+          className="flex-1 px-3 py-1.5 rounded-lg border border-purple-500/20 bg-purple-900/50 hover:bg-purple-700/50 active:bg-purple-600 text-white text-lg font-bold transition-colors"
           aria-label="Increase question count"
         >
           +
         </button>
       </div>
-      <p className="text-xs text-gray-400 mt-1">
+      <p className="text-xs text-purple-300/70 mt-1">
         Min: {QUIZ_CONSTANTS.MIN_QUESTIONS}, Max: {QUIZ_CONSTANTS.MAX_QUESTIONS}{" "}
         questions
       </p>

@@ -30,8 +30,8 @@ export function ScrollingTopics({ onTopicSelect }: ScrollingTopicsProps) {
   const row2Duration = getScrollDuration(categoryTopics[1]);
 
   return (
-    <div className="w-full mb-4">
-      <div className="space-y-2">
+    <div className="w-full mb-2">
+      <div className="space-y-0">
         {" "}
         {/* Reduced from space-y-3 to bring rows closer */}
         {/* First row - scrolling right */}
@@ -53,10 +53,10 @@ export function ScrollingTopics({ onTopicSelect }: ScrollingTopicsProps) {
                   onSelect={onTopicSelect}
                 />
               ))}
-              {/* Duplicate the topics to create a seamless loop */}
+              {/* Duplicate for seamless loop */}
               {categoryTopics[0].map((topic, index) => (
                 <TopicButton
-                  key={`${topic}-dup-${index}`}
+                  key={`${topic}-${index}-dup`}
                   topic={topic}
                   onSelect={onTopicSelect}
                 />
@@ -82,10 +82,10 @@ export function ScrollingTopics({ onTopicSelect }: ScrollingTopicsProps) {
                   onSelect={onTopicSelect}
                 />
               ))}
-              {/* Duplicate the topics to create a seamless loop */}
+              {/* Duplicate for seamless loop */}
               {categoryTopics[1].map((topic, index) => (
                 <TopicButton
-                  key={`${topic}-dup-${index}`}
+                  key={`${topic}-${index}-dup`}
                   topic={topic}
                   onSelect={onTopicSelect}
                 />

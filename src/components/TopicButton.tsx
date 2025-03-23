@@ -8,16 +8,17 @@ export function TopicButton({ topic, onSelect }: TopicButtonProps) {
     <button
       onClick={() => onSelect(topic)}
       className="
-        px-3 py-1.5 mx-1
+        px-3 py-1.5
         rounded-full
-        bg-purple-800/50
-        hover:bg-purple-700
-        active:bg-purple-600
-        text-white
+        bg-purple-800/30
+        hover:bg-purple-700/50
+        active:bg-purple-600/70
+        text-white/90
+        hover:text-white
         whitespace-nowrap
         transition-colors
         duration-200
-        border border-purple-500
+        border border-purple-500/20
         backdrop-blur-sm
         text-sm
       "

@@ -1,4 +1,3 @@
-type Difficulty = "easy" | "medium" | "hard";
 import { QUIZ_CONSTANTS, DifficultyLevel } from "@/lib/quiz";
 
 interface DifficultySelectorProps {
@@ -18,18 +17,20 @@ export function DifficultySelector({
 
   return (
     <div className="w-full">
-      <label className="block text-sm font-medium mb-2">Difficulty</label>
-      <div className="flex gap-4">
+      <label className="block text-sm font-medium mb-2 text-purple-200">
+        Difficulty
+      </label>
+      <div className="flex gap-2">
         {difficulties.map((difficulty) => (
           <button
             key={difficulty}
             onClick={() => onChange(difficulty)}
             className={`
-              flex-1 px-4 py-2 rounded-lg border capitalize transition-colors
+              flex-1 px-3 py-2 rounded-lg border text-sm capitalize transition-colors
               ${
                 value === difficulty
-                  ? "bg-yellow-500 text-white border-transparent"
-                  : "border-gray-300 hover:bg-gray-500"
+                  ? "bg-purple-600 border-purple-400 text-white"
+                  : "border-purple-500/20 bg-purple-900/50 text-purple-200 hover:bg-purple-700/50 hover:text-white"
               }
             `}
           >
