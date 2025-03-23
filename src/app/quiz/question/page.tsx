@@ -152,7 +152,7 @@ export default function QuestionPage() {
   const { displayedText: typedQuestion, isTyping } = useTypewriter(
     currentQuestion?.question || "",
     currentQuestionIndex,
-    10
+    20
   );
 
   const handleAnswerSelect = (answer: string) => {

@@ -58,23 +58,23 @@ export default function QuizSummaryPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl space-y-6 p-8 rounded-xl bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900 text-white">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-4">Quiz Complete!</h1>
-          <div className="text-xl">
+      <div className="w-full max-w-2xl space-y-6 p-2 rounded-xl bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900 text-white">
+        <div className="text-center mb-2">
+          <h1 className="text-lg font-bold mb-0">Quiz Complete!</h1>
+          <div className="text-base">
             Score: {score} / {totalQuestions} ({percentage}%)
           </div>
         </div>
 
-        <div className="max-h-[60vh] overflow-y-auto space-y-6 pr-4">
+        <div className="max-h-[70vh] overflow-y-auto space-y-6 pr-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-purple-400 [&::-webkit-scrollbar-track]:bg-purple-900">
           {questions.map((question, index) => {
             const answer = answeredQuestions[index];
             return (
-              <div key={index} className="p-4 rounded-lg bg-purple-900">
-                <div className="font-semibold mb-2">
+              <div key={index} className="p-3 rounded-lg bg-purple-900">
+                <div className="font-medium text-sm mb-2">
                   Question {index + 1}: {question.question}
                 </div>
-                <div className="space-y-2 mt-4">
+                <div className="space-y-1.5 mt-3">
                   {(
                     question.shuffledAnswers || [
                       question.correctAnswer,
@@ -92,7 +92,7 @@ export default function QuizSummaryPage() {
                     return (
                       <div
                         key={i}
-                        className={`flex justify-between items-center px-4 py-2 rounded ${
+                        className={`flex justify-between items-center px-3 py-1.5 rounded text-sm ${
                           showBorder ? `border-2 ${borderColor}` : ""
                         }`}
                       >
@@ -119,7 +119,7 @@ export default function QuizSummaryPage() {
 
         <button
           onClick={() => router.push("/")}
-          className="w-full mt-6 px-6 py-3 rounded-lg border-1 border-white bg-purple-800 hover:bg-purple-700"
+          className="w-full px-6 py-3 rounded-lg border-0 border-white bg-blue-600 hover:bg-blue-700"
         >
           Start New Quiz
         </button>
