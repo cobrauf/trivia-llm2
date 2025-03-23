@@ -28,20 +28,20 @@ body {
 
 /* Scrolling topics animations */
 @keyframes scroll-left {
-  from {
+  0% {
     transform: translateX(0);
   }
-  to {
-    transform: translateX(-100%);
+  100% {
+    transform: translateX(-50%);
   }
 }
 
 @keyframes scroll-right {
-  from {
-    transform: translateX(0);
+  0% {
+    transform: translateX(-50%);
   }
-  to {
-    transform: translateX(100%);
+  100% {
+    transform: translateX(0);
   }
 }
 

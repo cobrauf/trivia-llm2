@@ -8,7 +8,7 @@ export function TopicButton({ topic, onSelect }: TopicButtonProps) {
     <button
       onClick={() => onSelect(topic)}
       className="
-        px-4 py-2 mx-2
+        px-3 py-1.5 mx-1
         rounded-full
         bg-purple-800/50
         hover:bg-purple-700
@@ -19,6 +19,7 @@ export function TopicButton({ topic, onSelect }: TopicButtonProps) {
         duration-200
         border border-purple-500
         backdrop-blur-sm
+        text-sm
       "
     >
       {topic}
