@@ -77,7 +77,9 @@ export default function LoadingPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8 p-8 rounded-xl bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900 text-white text-center">
-        <h1 className="text-2xl font-bold mb-6">Preparing Your Quiz...</h1>
+        <h1 className="text-2xl font-bold mb-6">
+          Getting Your Trivia Ready...
+        </h1>
 
         <div className="flex justify-center mb-8">
           <LoadingSpinner />
@@ -85,16 +87,16 @@ export default function LoadingPage() {
 
         <div className="space-y-4 text-left">
           <div>
-            <span className="font-medium">Topic:</span>
-            <span className="ml-2">{topic}</span>
+            <span className="font-medium text-lg">Topic:</span>
+            <span className="ml-2 capitalize text-lg">{topic}</span>
           </div>
           <div>
-            <span className="font-medium">Questions:</span>
-            <span className="ml-2">{questionCount}</span>
+            <span className="font-medium text-lg"># of Questions:</span>
+            <span className="ml-2 text-lg">{questionCount}</span>
           </div>
           <div>
-            <span className="font-medium">Difficulty:</span>
-            <span className="ml-2 capitalize">{difficulty}</span>
+            <span className="font-medium text-lg">Difficulty:</span>
+            <span className="ml-2 capitalize text-lg">{difficulty}</span>
           </div>
         </div>
       </div>
