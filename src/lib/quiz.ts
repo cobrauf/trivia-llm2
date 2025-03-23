@@ -3,7 +3,7 @@ export const QUIZ_CONSTANTS = {
   MAX_QUESTIONS: 10,
   DIFFICULTY_LEVELS: {
     ROOKIE: "rookie",
-    SEASONED: "seasoned",
+    PRO: "pro",
     ELITE: "elite",
   },
 } as const;

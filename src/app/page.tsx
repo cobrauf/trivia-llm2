@@ -14,7 +14,7 @@ export default function Home() {
     QUIZ_CONSTANTS.MAX_QUESTIONS
   );
   const [difficulty, setDifficulty] = useState<DifficultyLevel>(
-    QUIZ_CONSTANTS.DIFFICULTY_LEVELS.SEASONED
+    QUIZ_CONSTANTS.DIFFICULTY_LEVELS.PRO
   );
 
   const handleSubmit = () => {

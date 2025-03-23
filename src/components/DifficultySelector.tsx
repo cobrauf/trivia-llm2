@@ -12,7 +12,7 @@ export function DifficultySelector({
 }: DifficultySelectorProps) {
   const difficulties: DifficultyLevel[] = [
     QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ROOKIE,
-    QUIZ_CONSTANTS.DIFFICULTY_LEVELS.SEASONED,
+    QUIZ_CONSTANTS.DIFFICULTY_LEVELS.PRO,
     QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ELITE,
   ];
 

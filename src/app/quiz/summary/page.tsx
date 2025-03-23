@@ -119,7 +119,7 @@ export default function QuizSummaryPage() {
 
         <button
           onClick={() => router.push("/")}
-          className="w-full mt-6 px-6 py-3 rounded-lg border-2 border-white bg-purple-800 hover:bg-purple-700"
+          className="w-full mt-6 px-6 py-3 rounded-lg border-1 border-white bg-purple-800 hover:bg-purple-700"
         >
           Start New Quiz
         </button>

@@ -5,7 +5,7 @@ export const QuestionGenerationSchema = z.object({
   topic: z.string().min(1).max(100),
   difficulty: z.enum([
     QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ROOKIE,
-    QUIZ_CONSTANTS.DIFFICULTY_LEVELS.SEASONED,
+    QUIZ_CONSTANTS.DIFFICULTY_LEVELS.PRO,
     QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ELITE,
   ]),
   questionCount: z
