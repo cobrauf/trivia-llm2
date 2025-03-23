@@ -338,7 +338,7 @@ export default function QuestionPage() {
               selectedAnswer ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-700"
             } disabled:opacity-50`}
           >
-            Confirm Answer
+            Final Answer
           </button>
         )}
 

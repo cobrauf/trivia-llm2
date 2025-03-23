@@ -44,7 +44,7 @@ export const QuestionSchema = z.object({
     .length(3),
   explanation: z
     .string()
-    .refine(maxWords(30), "Explanation must not exceed 30 words"),
+    .refine(maxWords(50), "Explanation must not exceed 50 words"),
 });
 
 export type Question = z.infer<typeof QuestionSchema>;
