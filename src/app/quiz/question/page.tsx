@@ -285,13 +285,23 @@ export default function QuestionPage() {
         </div>
 
         {/* Question */}
-        <div className="text-xl mb-8">
-          {typedQuestion}
-          {isTyping && (
-            <span className="ml-1 animate-[pulse_1s_ease-in-out_infinite]">
-              |
-            </span>
-          )}
+        <div className="h-[120px] mb-1 flex items-center justify-center">
+          <div
+            className={`text-center transition-all ${
+              typedQuestion.length > 100
+                ? "text-base"
+                : typedQuestion.length > 50
+                ? "text-lg"
+                : "text-2xl"
+            }`}
+          >
+            {typedQuestion}
+            {isTyping && (
+              <span className="ml-1 animate-[pulse_1s_ease-in-out_infinite]">
+                |
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Answers */}
