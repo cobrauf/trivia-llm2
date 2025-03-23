@@ -86,8 +86,8 @@ export default function QuizSummaryPage() {
                     const showBorder =
                       isUserAnswer || (isCorrectAnswer && !answer.isCorrect);
                     const borderColor = isCorrectAnswer
-                      ? "border-green-400"
-                      : "border-orange-400";
+                      ? "border-green-600"
+                      : "border-red-600";
 
                     return (
                       <div
@@ -101,7 +101,7 @@ export default function QuizSummaryPage() {
                           <div
                             className={`ml-4 text-xl ${
                               answer.isCorrect
-                                ? "text-green-500"
+                                ? "text-green-600"
                                 : "text-red-600"
                             }`}
                           >

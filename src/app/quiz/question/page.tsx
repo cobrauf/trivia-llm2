@@ -268,7 +268,7 @@ export default function QuestionPage() {
                 )
                   ? currentQuestionIndex === questions.length - 1 &&
                     !isLoadingMore
-                    ? "bg-green-500 hover:bg-green-600"
+                    ? "bg-blue-500 hover:bg-blue-600"
                     : "bg-blue-500 hover:bg-blue-600"
                   : "bg-purple-800 hover:bg-purple-700"
               }
@@ -315,9 +315,9 @@ export default function QuestionPage() {
                   ${
                     showResult
                       ? isCorrect
-                        ? "bg-green-700"
+                        ? "bg-green-600"
                         : answer === answeredQuestion?.selectedAnswer
-                        ? "bg-orange-700"
+                        ? "bg-red-600"
                         : "bg-purple-900"
                       : "bg-purple-900 hover:bg-purple-700"
                   }
@@ -344,7 +344,7 @@ export default function QuestionPage() {
 
         {/* Explanation */}
         {answeredQuestion?.showExplanation && (
-          <div className="mt-6 p-4 rounded-lg bg-purple-800">
+          <div className="mt-6 p-4 rounded-lg bg-purple-900">
             <div className="font-semibold mb-2">
               {answeredQuestion.isCorrect ? "Correct! 🎉" : "Incorrect"}
             </div>
