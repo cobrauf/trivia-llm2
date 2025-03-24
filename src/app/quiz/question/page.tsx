@@ -398,7 +398,7 @@ export default function QuestionPage() {
               } else {
                 // Wrong answer: flash between red and green
                 backgroundColor =
-                  flashCount % 2 === 0 ? "bg-red-600" : "bg-green-600";
+                  flashCount % 2 === 0 ? "bg-red-600" : "bg-purple-900";
               }
             }
 
