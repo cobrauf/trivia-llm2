@@ -8,14 +8,24 @@ interface ScrollingTopicsProps {
   onTopicSelect: (topic: string) => void;
 }
 
-export function ScrollingTopics({ onTopicSelect }: ScrollingTopicsProps) {
-  // Get topics from each category separately
-  const categoryTopics = useMemo(() => {
-    // Use the first category for row 1
-    const row1 = TOPIC_CATEGORIES[0].topics;
+// Fisher-Yates shuffle function to randomize an array
+const shuffleArray = <T,>(array: T[]): T[] => {
+  const shuffled = [...array]; // Create a copy of the array
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; // Swap elements
+  }
+  return shuffled;
+};
 
-    // Use the second category for row 2
-    const row2 = TOPIC_CATEGORIES[1].topics;
+export function ScrollingTopics({ onTopicSelect }: ScrollingTopicsProps) {
+  // Get topics from each category and shuffle them
+  const categoryTopics = useMemo(() => {
+    // Use the first category for row 1 and shuffle
+    const row1 = shuffleArray(TOPIC_CATEGORIES[0].topics);
+
+    // Use the second category for row 2 and shuffle
+    const row2 = shuffleArray(TOPIC_CATEGORIES[1].topics);
 
     return [row1, row2] as [string[], string[]];
   }, []);
@@ -32,14 +42,12 @@ export function ScrollingTopics({ onTopicSelect }: ScrollingTopicsProps) {
   return (
     <div className="w-full mb-2">
       <div className="space-y-0">
-        {" "}
-        {/* Reduced from space-y-3 to bring rows closer */}
         {/* First row - scrolling right */}
         <div className="overflow-hidden py-1">
           <div className="relative">
             {/* Duplicate the topics to create a seamless loop */}
             <div
-              className="flex items-center whitespace-nowrap gap-2 px-2" /* Reduced gap from 3 to 2 and padding from 3 to 2 */
+              className="flex items-center whitespace-nowrap gap-2 px-2"
               style={{
                 animation: `scroll-right ${row1Duration}s linear infinite`,
                 willChange: "transform",
@@ -68,7 +76,7 @@ export function ScrollingTopics({ onTopicSelect }: ScrollingTopicsProps) {
         <div className="overflow-hidden py-1">
           <div className="relative">
             <div
-              className="flex items-center whitespace-nowrap gap-2 px-2" /* Reduced gap from 3 to 2 and padding from 3 to 2 */
+              className="flex items-center whitespace-nowrap gap-2 px-2"
               style={{
                 animation: `scroll-left ${row2Duration}s linear infinite`,
                 willChange: "transform",

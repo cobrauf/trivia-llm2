@@ -1,4 +1,5 @@
 "use client";
+import { useState, useEffect } from "react";
 
 interface LoadingModalProps {
   currentCount: number;
@@ -6,6 +7,8 @@ interface LoadingModalProps {
   topic: string;
   questionCount: number;
   difficulty: string;
+  onRetry?: () => void;
+  onCancel?: () => void;
 }
 
 const LoadingSpinner = () => (
@@ -18,21 +21,39 @@ export function LoadingModal({
   topic,
   questionCount,
   difficulty,
+  onRetry,
+  onCancel,
 }: LoadingModalProps) {
+  const [showTimeoutButtons, setShowTimeoutButtons] = useState(false);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setShowTimeoutButtons(true);
+    }, 10000); // 10 seconds
+
+    return () => clearTimeout(timeoutId);
+  }, []);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
 
       {/* Modal */}
-      <div className="relative z-10 w-full max-w-md space-y-8 p-8 ml-8 mr-8 rounded-xl bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900 text-white text-center">
-        <h2 className="text-lg font-bold mb-6">Preparing Your Questions...</h2>
+      <div className="relative z-10 w-full max-w-md space-y-8 p-8 ml-4 mr-4 rounded-xl bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900 text-white text-center">
+        <h2 className="text-lg font-bold mb-6">Preparing Your Trivia...</h2>
 
         <div className="flex justify-center mb-8">
-          <LoadingSpinner />
+          {showTimeoutButtons ? (
+            <div className="text-red-300">
+              (Looks like we're having trouble generating your questions)
+            </div>
+          ) : (
+            <LoadingSpinner />
+          )}
         </div>
 
-        <div className="space-y-4 text-center">
+        <div className="space-y-1 text-center">
           <div>
             <span className="font-medium">Topic:</span>
             <span className="ml-2">{topic}</span>
@@ -52,6 +73,23 @@ export function LoadingModal({
               </div>
             )}
           </div>
+
+          {showTimeoutButtons && (
+            <div className="mt-6 flex justify-center gap-4">
+              <button
+                onClick={onRetry}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+              >
+                Retry
+              </button>
+              <button
+                onClick={onCancel}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
