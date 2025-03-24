@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense, useCallback } from "react";
+import { useEffect, useState, Suspense, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DifficultyLevel } from "@/lib/quiz";
 import { generateQuestionsSequentially } from "@/services/questionService";
@@ -26,6 +26,9 @@ function LoadingContent() {
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<string[]>([]);
 
+  // Add a ref to track if we've already started generation
+  const generationStartedRef = useRef(false);
+
   // Add debug info
   const addDebugInfo = useCallback((info: string) => {
     console.log("Debug:", info);
@@ -34,6 +37,14 @@ function LoadingContent() {
 
   useEffect(() => {
     const startQuizGeneration = async () => {
+      // Prevent multiple requests
+      if (generationStartedRef.current) {
+        addDebugInfo("Generation already started, skipping");
+        return;
+      }
+
+      generationStartedRef.current = true;
+
       try {
         addDebugInfo("Starting quiz generation");
         const params = { topic, questionCount, difficulty };
@@ -43,6 +54,11 @@ function LoadingContent() {
           "quiz_questions_total",
           questionCount.toString()
         );
+
+        // Clear previous questions and state
+        sessionStorage.removeItem("quiz_questions");
+        sessionStorage.removeItem("quiz_complete");
+        sessionStorage.removeItem("quiz_navigation_started");
 
         // Initialize question generation for all questions at once
         generateQuestionsSequentially(
@@ -96,12 +112,14 @@ function LoadingContent() {
             }
           },
           (error) => {
+            generationStartedRef.current = false; // Reset on error
             console.error("Error generating questions:", error);
             setError(error);
             addDebugInfo(`Error: ${error}`);
           }
         );
       } catch (error) {
+        generationStartedRef.current = false; // Reset on error
         console.error("Error starting quiz:", error);
         setError(
           `Error starting quiz: ${
@@ -111,9 +129,6 @@ function LoadingContent() {
         addDebugInfo(`Start error: ${error}`);
       }
     };
-
-    // Clear previous navigation flag when starting
-    sessionStorage.removeItem("quiz_navigation_started");
 
     startQuizGeneration();
   }, [topic, questionCount, difficulty, router, addDebugInfo]);

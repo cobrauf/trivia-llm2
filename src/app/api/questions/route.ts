@@ -3,11 +3,24 @@ import { QuestionGenerationSchema } from "@/schemas/question";
 import { generateQuestionsStream } from "@/lib/openrouter";
 import { z } from "zod";
 
+// Simple cache to prevent duplicate requests
+// This helps avoid multiple identical requests to OpenRouter
+type QuestionsStreamGenerator = ReturnType<typeof generateQuestionsStream>;
+const requestCache = new Map<string, QuestionsStreamGenerator>();
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const params = QuestionGenerationSchema.parse(body);
     console.log("API request received:", { ...params, stream: body.stream });
+
+    // Generate a cache key based on the request parameters
+    const cacheKey = JSON.stringify({
+      topic: params.topic,
+      questionCount: params.questionCount,
+      difficulty: params.difficulty,
+      streaming: body.stream,
+    });
 
     // When streaming, always request all questions at once
     const questionCount = body.stream
@@ -21,16 +34,36 @@ export async function POST(request: Request) {
       ? body.initialQuestion
       : undefined;
 
+    // Create generator params
+    const generatorParams = {
+      ...params,
+      questionCount,
+      initialQuestion,
+    };
+
     // If streaming is requested, use the streaming version
     if (body.stream) {
       console.log(
         `Setting up streaming response for ${questionCount} questions`
       );
-      const questionsStream = generateQuestionsStream({
-        ...params,
-        questionCount,
-        initialQuestion,
-      });
+
+      // Check if we already have a request in progress
+      if (requestCache.has(cacheKey)) {
+        console.log("Using cached request for streaming");
+      } else {
+        console.log("Starting new request to OpenRouter for streaming");
+        // Create and cache the generator
+        const generator = generateQuestionsStream(generatorParams);
+        requestCache.set(cacheKey, generator);
+
+        // Remove from cache after a reasonable timeout (5 minutes)
+        setTimeout(() => {
+          requestCache.delete(cacheKey);
+        }, 5 * 60 * 1000);
+      }
+
+      // Get the generator
+      const questionsStream = requestCache.get(cacheKey)!;
 
       // Use a TransformStream to convert the AsyncGenerator to a proper stream
       const { readable, writable } = new TransformStream();
@@ -72,12 +105,26 @@ export async function POST(request: Request) {
       console.log(
         `Using non-streaming response for ${questionCount} questions`
       );
+
+      // Check if we already have a request in progress
+      if (requestCache.has(cacheKey)) {
+        console.log("Using cached request for non-streaming");
+      } else {
+        console.log("Starting new request to OpenRouter for non-streaming");
+        // Create and cache the generator
+        const generator = generateQuestionsStream(generatorParams);
+        requestCache.set(cacheKey, generator);
+
+        // Remove from cache after a reasonable timeout (5 minutes)
+        setTimeout(() => {
+          requestCache.delete(cacheKey);
+        }, 5 * 60 * 1000);
+      }
+
+      // Get the generator
+      const questionsStream = requestCache.get(cacheKey)!;
+
       const allQuestions = [];
-      const questionsStream = generateQuestionsStream({
-        ...params,
-        questionCount,
-        initialQuestion,
-      });
 
       // Collect all questions
       for await (const chunk of questionsStream) {

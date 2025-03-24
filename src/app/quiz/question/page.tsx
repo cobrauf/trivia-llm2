@@ -113,8 +113,8 @@ export default function QuestionPage() {
           console.log("Storage changed, checking for new questions");
           const parsedQuestions = JSON.parse(storedQuestions) as Question[];
 
-          // Only update if the parsed questions are different or if there are more of them
-          if (parsedQuestions.length !== questions.length) {
+          // Only update if there are more questions than we currently have
+          if (parsedQuestions.length > questions.length) {
             console.log(
               "Updating questions from storage, new count:",
               parsedQuestions.length,
@@ -122,24 +122,29 @@ export default function QuestionPage() {
               questions.length
             );
 
-            // Randomize answers for each question
-            const questionsWithRandomizedAnswers: QuestionWithShuffledAnswers[] =
-              parsedQuestions.map((q) => ({
+            // Get only the new questions
+            const newQuestions = parsedQuestions.slice(questions.length);
+
+            // Randomize answers for just the new questions
+            const newQuestionsWithRandomizedAnswers: QuestionWithShuffledAnswers[] =
+              newQuestions.map((q) => ({
                 ...q,
                 shuffledAnswers: [q.correctAnswer, ...q.incorrectAnswers].sort(
                   () => Math.random() - 0.5
                 ),
               }));
 
-            setQuestions(questionsWithRandomizedAnswers);
+            // Append the new questions to our existing ones
+            setQuestions((prevQuestions) => [
+              ...prevQuestions,
+              ...newQuestionsWithRandomizedAnswers,
+            ]);
 
-            // Also show a notification about new questions
-            if (parsedQuestions.length > questions.length) {
-              setShowLoadedMessage(true);
-              setTimeout(() => {
-                setShowLoadedMessage(false);
-              }, 3000);
-            }
+            // Show a notification about new questions
+            setShowLoadedMessage(true);
+            setTimeout(() => {
+              setShowLoadedMessage(false);
+            }, 3000);
           }
         } catch (error) {
           console.error("Error parsing stored questions:", error);
@@ -276,7 +281,11 @@ export default function QuestionPage() {
           <div className="text-center">
             <div>Question</div>
             <div>
-              {currentQuestionIndex + 1} of {questions.length}
+              {currentQuestionIndex + 1} of{" "}
+              {parseInt(
+                sessionStorage.getItem("quiz_questions_total") ||
+                  String(questions.length)
+              )}
             </div>
           </div>
           <button
