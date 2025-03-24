@@ -168,13 +168,10 @@ export default function QuestionPage() {
   }, [questions.length, isLoadingMore]);
 
   // Handle showing and hiding the "All questions generated" message
+  // Handle showing the "All questions generated" message
   useEffect(() => {
     if (!isLoadingMore && questions.length > 1) {
       setShowLoadedMessage(true);
-      const timer = setTimeout(() => {
-        setShowLoadedMessage(false);
-      }, 3000);
-      return () => clearTimeout(timer);
     }
   }, [isLoadingMore, questions.length]);
 
