@@ -317,12 +317,12 @@ export default function QuestionPage() {
       {/* Back to Welcome button */}
       <button
         onClick={() => setShowBackConfirmation(true)}
-        className="fixed top-4 left-4 px-4 py-2 bg-blue hover:bg-purple-900 text-white rounded-md transition-colors"
+        className="fixed top-3 left-4 px-2 bg-blue hover:bg-purple-900 text-white rounded-md transition-colors"
       >
         ← Back
       </button>
 
-      <div className="w-full max-w-2xl mt-12 p-6 pt-4 rounded-xl bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900 text-white">
+      <div className="w-full max-w-2xl mt-0 p-6 pt-4 rounded-xl bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900 text-white">
         {/* Navigation */}
         <div className="flex justify-between items-center mb-3">
           <button
@@ -376,8 +376,9 @@ export default function QuestionPage() {
         {isLoadingMore && (
           <div className="text-center text-xs text-purple-200 flex items-center justify-center mb-2">
             <div className="animate-spin mr-2 h-2 w-2 border-2 border-purple-200 rounded-full border-t-transparent"></div>
-            Fetching remaining questions... ({questions.length}/
-            {sessionStorage.getItem("quiz_questions_total") || "..."})
+            Fetching remaining questions...
+            {/* ({questions.length}/
+            {sessionStorage.getItem("quiz_questions_total") || "..."}) */}
           </div>
         )}
         {/* Show message when finished loading */}
