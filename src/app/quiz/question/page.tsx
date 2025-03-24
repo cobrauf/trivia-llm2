@@ -144,7 +144,7 @@ export default function QuestionPage() {
             setShowLoadedMessage(true);
             setTimeout(() => {
               setShowLoadedMessage(false);
-            }, 10000);
+            }, 20000);
           }
         } catch (error) {
           console.error("Error parsing stored questions:", error);

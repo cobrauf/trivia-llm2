@@ -15,6 +15,16 @@ export function DifficultySelector({
     QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ELITE,
   ];
 
+  // Map each difficulty to its own tagline
+  const difficultyTaglines: Record<DifficultyLevel, string> = {
+    [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ROOKIE]:
+      "I'm basically a potato playing this game.",
+    [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.PRO]:
+      "I'm not saying I'm smart, but I kinda am.",
+    [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ELITE]:
+      "I've been preparing for this since birth. It's time.",
+  };
+
   return (
     <div className="w-full">
       <label className="block text-sm font-medium mb-2 text-purple-200">
@@ -38,6 +48,10 @@ export function DifficultySelector({
           </button>
         ))}
       </div>
+      {/* Display the tagline for the selected difficulty */}
+      <p className="mt-1 text-xs text-purple-300/70">
+        {difficultyTaglines[value]}
+      </p>
     </div>
   );
 }

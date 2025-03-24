@@ -9,6 +9,7 @@ interface LoadingModalProps {
   difficulty: string;
   onRetry?: () => void;
   onCancel?: () => void;
+  hasError?: boolean;
 }
 
 const LoadingSpinner = () => (
@@ -23,16 +24,23 @@ export function LoadingModal({
   difficulty,
   onRetry,
   onCancel,
+  hasError = false,
 }: LoadingModalProps) {
   const [showTimeoutButtons, setShowTimeoutButtons] = useState(false);
 
   useEffect(() => {
+    if (hasError) {
+      setShowTimeoutButtons(true);
+      return;
+    }
+
+    setShowTimeoutButtons(false); // Reset timeout state when retrying
     const timeoutId = setTimeout(() => {
       setShowTimeoutButtons(true);
     }, 10000); // 10 seconds
 
     return () => clearTimeout(timeoutId);
-  }, []);
+  }, [currentCount, hasError]); // Reset timer when currentCount changes or error occurs
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">

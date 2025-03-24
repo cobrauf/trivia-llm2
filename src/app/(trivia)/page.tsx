@@ -19,8 +19,10 @@ export default function Home() {
   );
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
+  const [hasError, setHasError] = useState(false);
 
   const handleSubmit = async () => {
+    setHasError(false);
     // Clear any stored quiz data
     sessionStorage.removeItem("quiz_questions");
     sessionStorage.removeItem("quiz_complete");
@@ -52,13 +54,14 @@ export default function Home() {
         },
         (error) => {
           console.error("Error generating questions:", error);
-          setIsGenerating(false);
-          // TODO: Add error handling UI
+          setHasError(true);
+          setProgress({ current: 0, total: questionCount }); // Reset progress
         }
       );
     } catch (error) {
       console.error("Error starting quiz:", error);
-      setIsGenerating(false);
+      setHasError(true);
+      // Keep modal visible to show error UI
     }
   };
 
@@ -92,7 +95,7 @@ export default function Home() {
             }
           `}
         >
-          Start Quiz
+          Let's Go!
         </button>
       </div>
 
@@ -103,6 +106,14 @@ export default function Home() {
           topic={topic}
           questionCount={questionCount}
           difficulty={difficulty}
+          hasError={hasError}
+          onRetry={() => {
+            handleSubmit();
+          }}
+          onCancel={() => {
+            setIsGenerating(false);
+            router.push("/");
+          }}
         />
       )}
     </div>

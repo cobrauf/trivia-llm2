@@ -268,11 +268,22 @@ export async function* generateQuestionsStream(
     } streaming API at ${apiUrl}`
   );
 
-  const response = await fetch(apiUrl, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(body),
-  });
+  let response;
+  try {
+    response = await fetch(apiUrl, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
+  } catch (error) {
+    console.error("Error connecting to LLM API:", error);
+    if (error instanceof Error) {
+      const message =
+        error.message + (error.cause ? ` (${(error.cause as any).code})` : "");
+      throw new Error(`Failed to connect to LLM API: ${message}`);
+    }
+    throw error;
+  }
 
   if (!response.ok) {
     const error = await response.text();
