@@ -84,12 +84,12 @@ export function LoadingModal({
 
           {showTimeoutButtons && (
             <div className="mt-6 flex justify-center gap-4">
-              <button
+              {/* <button
                 onClick={onRetry}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
               >
                 Retry
-              </button>
+              </button> */}
               <button
                 onClick={onCancel}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
