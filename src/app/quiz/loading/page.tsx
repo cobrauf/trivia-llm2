@@ -19,15 +19,31 @@ function LoadingContent() {
   const difficulty =
     (searchParams.get("difficulty") as DifficultyLevel) || "seasoned";
 
+  const [progress, setProgress] = useState({
+    current: 0,
+    total: questionCount,
+  });
+
   useEffect(() => {
     const startQuizGeneration = async () => {
       try {
         const params = { topic, questionCount, difficulty };
 
+        // Store the total question count for progress indication
+        sessionStorage.setItem(
+          "quiz_questions_total",
+          questionCount.toString()
+        );
+
         // Initialize question generation
         generateQuestionsSequentially(
           params,
-          ({ questions, isComplete }) => {
+          ({ questions, isComplete, progress }) => {
+            // Update progress if available
+            if (progress) {
+              setProgress(progress);
+            }
+
             // When first question is ready, move to the quiz page
             if (questions.length > 0) {
               // Store questions in sessionStorage
@@ -76,28 +92,58 @@ function LoadingContent() {
   }, [topic, questionCount, difficulty, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8 p-8 rounded-xl bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900 text-white text-center">
-        <h1 className="text-2xl font-bold mb-6">
-          Getting Your Trivia Ready...
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
+          Generating Your Trivia Challenge
         </h1>
 
-        <div className="flex justify-center mb-8">
-          <LoadingSpinner />
-        </div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative flex items-center justify-center w-32 h-32">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-xl font-semibold text-purple-600">
+                {Math.min(progress.current, progress.total)}/{progress.total}
+              </div>
+            </div>
+            <svg className="w-full h-full" viewBox="0 0 100 100">
+              <circle
+                className="text-gray-200"
+                strokeWidth="8"
+                stroke="currentColor"
+                fill="transparent"
+                r="40"
+                cx="50"
+                cy="50"
+              />
+              <circle
+                className="text-purple-600"
+                strokeWidth="8"
+                strokeLinecap="round"
+                stroke="currentColor"
+                fill="transparent"
+                r="40"
+                cx="50"
+                cy="50"
+                strokeDasharray={`${
+                  (Math.min(progress.current, progress.total) /
+                    progress.total) *
+                  251.2
+                } 251.2`}
+                strokeDashoffset="0"
+              />
+            </svg>
+          </div>
 
-        <div className="space-y-4 text-left">
-          <div>
-            <span className="font-medium text-lg">Topic:</span>
-            <span className="ml-2 capitalize text-lg">{topic}</span>
+          <div className="text-xl text-gray-700 animate-pulse">
+            {progress.current === 0
+              ? "Crafting your first question..."
+              : progress.current === 1
+              ? "First question ready! Fetching the rest..."
+              : `Fetching remaining questions... (${progress.current}/${progress.total})`}
           </div>
-          <div>
-            <span className="font-medium text-lg"># of Questions:</span>
-            <span className="ml-2 text-lg">{questionCount}</span>
-          </div>
-          <div>
-            <span className="font-medium text-lg">Difficulty:</span>
-            <span className="ml-2 capitalize text-lg">{difficulty}</span>
+
+          <div className="text-sm text-gray-500 mt-2">
+            {topic && <span>Topic: {topic}</span>}
           </div>
         </div>
       </div>

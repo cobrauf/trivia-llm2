@@ -326,20 +326,23 @@ export default function QuestionPage() {
 
         {/* Loading indicator for remaining questions */}
         {isLoadingMore && (
-          <div className="text-center text-xs text-purple-200 flex items-center justify-center">
+          <div className="text-center text-xs text-purple-200 flex items-center justify-center mb-2">
             <div className="animate-spin mr-2 h-2 w-2 border-2 border-purple-200 rounded-full border-t-transparent"></div>
-            Generating remaining questions...
+            Fetching remaining questions... ({questions.length}/
+            {sessionStorage.getItem("quiz_questions_total") ||
+              questions.length + "..."}
+            )
           </div>
         )}
         {/* Show message when finished loading */}
         {!isLoadingMore && questions.length > 1 && showLoadedMessage && (
-          <div className="text-center text-xs text-green-300">
-            ✓ All questions generated
+          <div className="text-center text-xs text-green-300 mb-2">
+            ✓ All {questions.length} questions generated
           </div>
         )}
 
         {/* Question */}
-        <div className="h-[120px] mb-1 flex items-center justify-left">
+        <div className="h-[120px] mb-1 mt-4 flex items-start justify-left">
           <div
             className={`text-left transition-all ${
               typedQuestion.length > 100

@@ -7,6 +7,7 @@ export const TOPIC_CATEGORIES: TopicCategory[] = [
   {
     name: "General Knowledge",
     topics: [
+      "General Knowledge",
       "History",
       "Wildlife",
       "Geography",
@@ -30,14 +31,13 @@ export const TOPIC_CATEGORIES: TopicCategory[] = [
     name: "Specific Interests",
     topics: [
       "Famous Inventions",
-      "Dad Jokes",
-      "Disgusting Foods",
       "Superheroes",
       "Video Games",
+      "Disgusting Foods",
       "Dinosaurs",
       "Artificial Intelligence",
       "Ridiculous World Records",
-      "Most Absurd Products",
+      "Absurd Products",
     ],
   },
 ];
