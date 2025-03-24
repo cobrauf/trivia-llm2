@@ -71,6 +71,9 @@ export default function QuestionPage() {
   >([]);
   const [isLoadingMore, setIsLoadingMore] = useState(true);
   const [showLoadedMessage, setShowLoadedMessage] = useState(false);
+  const [isFlashing, setIsFlashing] = useState(false);
+  const [flashCount, setFlashCount] = useState(0);
+  const [isCorrectAnswer, setIsCorrectAnswer] = useState(false);
 
   useEffect(() => {
     // Load questions from sessionStorage
@@ -193,39 +196,58 @@ export default function QuestionPage() {
     if (!selectedAnswer || !currentQuestion) return;
 
     const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
+    setIsCorrectAnswer(isCorrect);
 
-    const newAnsweredQuestions = [
-      ...answeredQuestions,
-      {
-        questionIndex: currentQuestionIndex,
-        selectedAnswer,
-        isCorrect,
-        showExplanation: true,
-      },
-    ];
-    setAnsweredQuestions(newAnsweredQuestions);
+    // Start the flashing effect
+    setIsFlashing(true);
+    setFlashCount(0);
 
-    // Check if we need to update the loading status
-    const isComplete = sessionStorage.getItem("quiz_complete") === "true";
-    if (isComplete && isLoadingMore) {
-      setIsLoadingMore(false);
-    }
+    // Flash 3 times (6 transitions total - 3 to flash color, 3 back to original)
+    const flashInterval = setInterval(() => {
+      setFlashCount((count) => {
+        if (count >= 5) {
+          clearInterval(flashInterval);
+          setIsFlashing(false);
 
-    // Store in session storage
-    // Store both answers and questions to preserve shuffled answers
-    sessionStorage.setItem(
-      "quiz_answers",
-      JSON.stringify(
-        newAnsweredQuestions.map(
-          ({ questionIndex, selectedAnswer, isCorrect }) => ({
-            questionIndex,
-            selectedAnswer,
-            isCorrect,
-          })
-        )
-      )
-    );
-    sessionStorage.setItem("quiz_questions", JSON.stringify(questions));
+          // After flashing completes, update the answered questions state
+          const newAnsweredQuestions = [
+            ...answeredQuestions,
+            {
+              questionIndex: currentQuestionIndex,
+              selectedAnswer,
+              isCorrect,
+              showExplanation: true,
+            },
+          ];
+          setAnsweredQuestions(newAnsweredQuestions);
+
+          // Check if we need to update the loading status
+          const isComplete = sessionStorage.getItem("quiz_complete") === "true";
+          if (isComplete && isLoadingMore) {
+            setIsLoadingMore(false);
+          }
+
+          // Store in session storage
+          // Store both answers and questions to preserve shuffled answers
+          sessionStorage.setItem(
+            "quiz_answers",
+            JSON.stringify(
+              newAnsweredQuestions.map(
+                ({ questionIndex, selectedAnswer, isCorrect }) => ({
+                  questionIndex,
+                  selectedAnswer,
+                  isCorrect,
+                })
+              )
+            )
+          );
+          sessionStorage.setItem("quiz_questions", JSON.stringify(questions));
+
+          return 0;
+        }
+        return count + 1;
+      });
+    }, 200); // 200ms per transition = 1.2 seconds total for 3 flashes
   };
 
   const handleNavigation = (direction: "back" | "forward") => {
@@ -269,7 +291,7 @@ export default function QuestionPage() {
           <button
             onClick={() => handleNavigation("back")}
             disabled={currentQuestionIndex === 0}
-            className="px-4 py-2 rounded border-1 border-white transition-colors bg-purple-800 hover:bg-purple-700 disabled:bg-gray-600 disabled:hover:bg-gray-600"
+            className="px-4 py-2 rounded border-0 border-white transition-colors bg-purple-900 hover:bg-purple-700 disabled:bg-gray-600 disabled:hover:bg-gray-600"
           >
             Back
           </button>
@@ -290,7 +312,7 @@ export default function QuestionPage() {
                 (q) => q.questionIndex === currentQuestionIndex
               )
             }
-            className={`px-4 py-2 rounded border-1 border-white transition-colors
+            className={`px-4 py-2 rounded border-0 border-white transition-colors
               ${
                 answeredQuestions.some(
                   (q) => q.questionIndex === currentQuestionIndex
@@ -356,26 +378,42 @@ export default function QuestionPage() {
             const showResult = answeredQuestion !== undefined;
             const isCorrect = answer === currentQuestion.correctAnswer;
 
+            // Flash colors logic
+            let backgroundColor = "bg-purple-900 hover:bg-purple-700";
+
+            if (showResult) {
+              if (isCorrect) {
+                backgroundColor = "bg-green-600";
+              } else if (answer === answeredQuestion?.selectedAnswer) {
+                backgroundColor = "bg-red-600";
+              } else {
+                backgroundColor = "bg-purple-900";
+              }
+            } else if (isFlashing && isSelected) {
+              // Flashing logic - alternate between colors on even/odd counts
+              if (isCorrectAnswer) {
+                // Correct answer: flash between purple and green
+                backgroundColor =
+                  flashCount % 2 === 0 ? "bg-purple-900" : "bg-green-600";
+              } else {
+                // Wrong answer: flash between red and green
+                backgroundColor =
+                  flashCount % 2 === 0 ? "bg-red-600" : "bg-green-600";
+              }
+            }
+
             return (
               <button
                 key={index}
                 onClick={() => handleAnswerSelect(answer)}
-                disabled={answeredQuestion !== undefined}
+                disabled={answeredQuestion !== undefined || isFlashing}
                 className={`
                   w-full p-4 rounded-lg text-left transition-all
                   border-1 border-white
                   ${
                     isSelected ? "shadow-[0_0_10px_5px_rgba(59,130,246,1)]" : ""
                   }
-                  ${
-                    showResult
-                      ? isCorrect
-                        ? "bg-green-600"
-                        : answer === answeredQuestion?.selectedAnswer
-                        ? "bg-red-600"
-                        : "bg-purple-900"
-                      : "bg-purple-900 hover:bg-purple-700"
-                  }
+                  ${backgroundColor}
                 `}
               >
                 {`${String.fromCharCode(65 + index)}: ${answer}`}
@@ -385,7 +423,7 @@ export default function QuestionPage() {
         </div>
 
         {/* Confirm Button */}
-        {!answeredQuestion && (
+        {!answeredQuestion && !isFlashing && (
           <button
             onClick={handleConfirmAnswer}
             disabled={!selectedAnswer}
@@ -395,6 +433,13 @@ export default function QuestionPage() {
           >
             Final Answer
           </button>
+        )}
+
+        {/* Show a message while flashing */}
+        {isFlashing && (
+          <div className="w-full mt-6 px-6 py-3 text-center">
+            Checking answer...
+          </div>
         )}
 
         {/* Explanation */}
