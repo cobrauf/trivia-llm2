@@ -227,6 +227,7 @@ export async function* generateQuestionsStream(
   let buffer = "";
   let processedQuestions = new Set<string>();
   let lastYieldedCount = 0;
+  let fullContent = ""; // Collecting the full content for parsing
 
   try {
     while (true) {
@@ -234,7 +235,7 @@ export async function* generateQuestionsStream(
 
       if (done) {
         // On stream completion, try to parse any remaining content and mark as done
-        const finalQuestions = parsePartialQuestionsFromResponse(buffer);
+        const finalQuestions = parsePartialQuestionsFromResponse(fullContent);
         const newQuestions = finalQuestions.filter(
           (q) => !processedQuestions.has(q.question)
         );
@@ -254,35 +255,62 @@ export async function* generateQuestionsStream(
         break;
       }
 
-      // Append new chunk to buffer
-      buffer += decoder.decode(value, { stream: true });
+      // Process the chunk properly
+      const chunk = decoder.decode(value, { stream: true });
+      buffer += chunk;
 
-      // Try to extract complete questions
-      const questions = parsePartialQuestionsFromResponse(buffer);
+      // Process SSE format from OpenRouter
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
 
-      // Filter out questions we've already processed
-      const newQuestions = questions.filter(
-        (q) => !processedQuestions.has(q.question)
-      );
+      for (const line of lines) {
+        if (line.startsWith("data: ")) {
+          const data = line.slice(6); // Remove 'data: ' prefix
 
-      if (newQuestions.length > 0) {
-        // Mark these questions as processed
-        for (const q of newQuestions) {
-          processedQuestions.add(q.question);
+          if (data === "[DONE]") {
+            // Stream is complete
+            continue;
+          }
+
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.choices && parsed.choices[0]?.delta?.content) {
+              // Accumulate content for parsing questions
+              fullContent += parsed.choices[0].delta.content;
+
+              // Try to parse questions from what we have so far
+              const questions = parsePartialQuestionsFromResponse(fullContent);
+
+              // Filter out questions we've already processed
+              const newQuestions = questions.filter(
+                (q) => !processedQuestions.has(q.question)
+              );
+
+              if (newQuestions.length > 0) {
+                // Mark these questions as processed
+                for (const q of newQuestions) {
+                  processedQuestions.add(q.question);
+                }
+
+                // Only yield if we have new questions
+                yield {
+                  questions: newQuestions,
+                  total: params.questionCount,
+                };
+
+                lastYieldedCount = processedQuestions.size;
+
+                // Debug log
+                console.log(
+                  `Found ${newQuestions.length} new questions, total: ${processedQuestions.size}`
+                );
+              }
+            }
+          } catch (error) {
+            // Skip lines that aren't valid JSON
+            console.log("Error parsing SSE data:", error);
+          }
         }
-
-        // Only yield if we have new questions
-        yield {
-          questions: newQuestions,
-          total: params.questionCount,
-        };
-
-        lastYieldedCount = processedQuestions.size;
-      } else if (processedQuestions.size > lastYieldedCount) {
-        // If we have more processed questions but no new complete ones,
-        // send an update on the count
-        yield { total: params.questionCount };
-        lastYieldedCount = processedQuestions.size;
       }
     }
   } catch (error) {

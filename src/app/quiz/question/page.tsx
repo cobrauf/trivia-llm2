@@ -100,64 +100,49 @@ export default function QuestionPage() {
   useEffect(() => {
     const handleStorageChange = () => {
       const isComplete = sessionStorage.getItem("quiz_complete") === "true";
+      const storedQuestions = sessionStorage.getItem("quiz_questions");
 
       // Update the loading status if needed
-      if (isComplete) {
+      if (isComplete && isLoadingMore) {
         setIsLoadingMore(false);
+      }
 
-        // Update questions with any new ones that have been added
-        const storedQuestions = sessionStorage.getItem("quiz_questions");
-        if (storedQuestions) {
-          try {
-            const parsedQuestions = JSON.parse(storedQuestions) as Question[];
+      // Update questions with any new ones that have been added
+      if (storedQuestions) {
+        try {
+          console.log("Storage changed, checking for new questions");
+          const parsedQuestions = JSON.parse(storedQuestions) as Question[];
 
-            // Only update if the parsed questions are different or if there are more of them
+          // Only update if the parsed questions are different or if there are more of them
+          if (parsedQuestions.length !== questions.length) {
+            console.log(
+              "Updating questions from storage, new count:",
+              parsedQuestions.length,
+              "old count:",
+              questions.length
+            );
+
+            // Randomize answers for each question
+            const questionsWithRandomizedAnswers: QuestionWithShuffledAnswers[] =
+              parsedQuestions.map((q) => ({
+                ...q,
+                shuffledAnswers: [q.correctAnswer, ...q.incorrectAnswers].sort(
+                  () => Math.random() - 0.5
+                ),
+              }));
+
+            setQuestions(questionsWithRandomizedAnswers);
+
+            // Also show a notification about new questions
             if (parsedQuestions.length > questions.length) {
-              console.log(
-                "Updating questions from storage, new count:",
-                parsedQuestions.length
-              );
-
-              // Preserve the first question if we already have questions
-              if (questions.length > 0) {
-                const updatedQuestions = [...parsedQuestions];
-
-                // Replace the first question with our existing first question
-                if (updatedQuestions.length > 0 && questions.length > 0) {
-                  updatedQuestions[0] = {
-                    ...questions[0],
-                    // We need to strip off the shuffledAnswers, as it's not part of the original Question type
-                    question: questions[0].question,
-                    correctAnswer: questions[0].correctAnswer,
-                    incorrectAnswers: questions[0].incorrectAnswers,
-                    explanation: questions[0].explanation,
-                  };
-                }
-
-                const questionsWithRandomizedAnswers: QuestionWithShuffledAnswers[] =
-                  updatedQuestions.map((q) => ({
-                    ...q,
-                    shuffledAnswers: [
-                      q.correctAnswer,
-                      ...q.incorrectAnswers,
-                    ].sort(() => Math.random() - 0.5),
-                  }));
-                setQuestions(questionsWithRandomizedAnswers);
-              } else {
-                const questionsWithRandomizedAnswers: QuestionWithShuffledAnswers[] =
-                  parsedQuestions.map((q) => ({
-                    ...q,
-                    shuffledAnswers: [
-                      q.correctAnswer,
-                      ...q.incorrectAnswers,
-                    ].sort(() => Math.random() - 0.5),
-                  }));
-                setQuestions(questionsWithRandomizedAnswers);
-              }
+              setShowLoadedMessage(true);
+              setTimeout(() => {
+                setShowLoadedMessage(false);
+              }, 3000);
             }
-          } catch (error) {
-            console.error("Error parsing stored questions:", error);
           }
+        } catch (error) {
+          console.error("Error parsing stored questions:", error);
         }
       }
     };
@@ -169,13 +154,13 @@ export default function QuestionPage() {
     window.addEventListener("storage", handleStorageChange);
 
     // Setup polling as a fallback since storage events don't fire in the same tab
-    const intervalId = setInterval(handleStorageChange, 1000);
+    const intervalId = setInterval(handleStorageChange, 500);
 
     return () => {
       window.removeEventListener("storage", handleStorageChange);
       clearInterval(intervalId);
     };
-  }, [questions.length]);
+  }, [questions.length, isLoadingMore]);
 
   // Handle showing and hiding the "All questions generated" message
   useEffect(() => {
@@ -329,9 +314,7 @@ export default function QuestionPage() {
           <div className="text-center text-xs text-purple-200 flex items-center justify-center mb-2">
             <div className="animate-spin mr-2 h-2 w-2 border-2 border-purple-200 rounded-full border-t-transparent"></div>
             Fetching remaining questions... ({questions.length}/
-            {sessionStorage.getItem("quiz_questions_total") ||
-              questions.length + "..."}
-            )
+            {sessionStorage.getItem("quiz_questions_total") || "..."})
           </div>
         )}
         {/* Show message when finished loading */}
@@ -345,7 +328,7 @@ export default function QuestionPage() {
         <div className="h-[120px] mb-1 mt-4 flex items-start justify-left">
           <div
             className={`text-left transition-all ${
-              typedQuestion.length > 100
+              typedQuestion.length > 150
                 ? "text-base"
                 : typedQuestion.length > 50
                 ? "text-lg"

@@ -7,17 +7,25 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const params = QuestionGenerationSchema.parse(body);
+    console.log("API request received:", { ...params, stream: body.stream });
 
-    // Determine how many questions to generate based on whether this is a remaining request
-    const questionCount = body.remaining ? params.questionCount - 1 : 1;
+    // When streaming, always request all questions at once
+    const questionCount = body.stream
+      ? params.questionCount
+      : body.remaining
+      ? params.questionCount - 1
+      : 1;
 
-    // If this is a remaining request and we have an initial question,
-    // pass it to avoid duplicates
-    const initialQuestion =
-      body.remaining && body.initialQuestion ? body.initialQuestion : undefined;
+    // Pass the initial question if provided to avoid duplicates
+    const initialQuestion = body.initialQuestion
+      ? body.initialQuestion
+      : undefined;
 
     // If streaming is requested, use the streaming version
     if (body.stream) {
+      console.log(
+        `Setting up streaming response for ${questionCount} questions`
+      );
       const questionsStream = generateQuestionsStream({
         ...params,
         questionCount,
@@ -32,10 +40,19 @@ export async function POST(request: Request) {
       (async () => {
         const encoder = new TextEncoder();
         try {
+          console.log("Starting stream processing");
           for await (const chunk of questionsStream) {
+            // Debug log each chunk
+            console.log(
+              "Streaming chunk:",
+              JSON.stringify(chunk).slice(0, 100) + "..."
+            );
+
             // Send each chunk as a newline-delimited JSON string
-            await writer.write(encoder.encode(JSON.stringify(chunk) + "\n"));
+            const jsonString = JSON.stringify(chunk) + "\n";
+            await writer.write(encoder.encode(jsonString));
           }
+          console.log("Stream completed successfully");
         } catch (error) {
           console.error("Error in streaming response:", error);
         } finally {
@@ -52,6 +69,9 @@ export async function POST(request: Request) {
       });
     } else {
       // For backwards compatibility, keep the non-streaming version
+      console.log(
+        `Using non-streaming response for ${questionCount} questions`
+      );
       const allQuestions = [];
       const questionsStream = generateQuestionsStream({
         ...params,
@@ -66,6 +86,9 @@ export async function POST(request: Request) {
         }
       }
 
+      console.log(
+        `Returning ${allQuestions.length} questions in single response`
+      );
       return NextResponse.json({ questions: allQuestions });
     }
   } catch (error) {

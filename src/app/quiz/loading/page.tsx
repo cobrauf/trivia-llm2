@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DifficultyLevel } from "@/lib/quiz";
 import { generateQuestionsSequentially } from "@/services/questionService";
@@ -23,10 +23,19 @@ function LoadingContent() {
     current: 0,
     total: questionCount,
   });
+  const [error, setError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<string[]>([]);
+
+  // Add debug info
+  const addDebugInfo = useCallback((info: string) => {
+    console.log("Debug:", info);
+    setDebugInfo((prev) => [...prev.slice(-4), info]); // Keep last 5 messages
+  }, []);
 
   useEffect(() => {
     const startQuizGeneration = async () => {
       try {
+        addDebugInfo("Starting quiz generation");
         const params = { topic, questionCount, difficulty };
 
         // Store the total question count for progress indication
@@ -35,17 +44,22 @@ function LoadingContent() {
           questionCount.toString()
         );
 
-        // Initialize question generation
+        // Initialize question generation for all questions at once
         generateQuestionsSequentially(
           params,
           ({ questions, isComplete, progress }) => {
             // Update progress if available
             if (progress) {
               setProgress(progress);
+              addDebugInfo(
+                `Progress update: ${progress.current}/${progress.total} questions`
+              );
             }
 
-            // When first question is ready, move to the quiz page
+            // When we have questions, store them
             if (questions.length > 0) {
+              addDebugInfo(`Received ${questions.length} questions`);
+
               // Store questions in sessionStorage
               sessionStorage.setItem(
                 "quiz_questions",
@@ -55,41 +69,89 @@ function LoadingContent() {
               // Make sure the isComplete flag is set properly
               sessionStorage.setItem("quiz_complete", isComplete.toString());
 
-              // Only navigate to question page on first call (when first question is ready)
-              if (!isComplete) {
-                // Navigate to quiz page
-                router.push("/quiz/question");
-              } else {
-                // If we already navigated, just update the stored data
-                // This ensures the storage event is triggered
-                const existingData = sessionStorage.getItem("quiz_questions");
-                if (existingData) {
-                  // Force a storage event by setting with the same key
-                  sessionStorage.setItem(
-                    "quiz_questions",
-                    JSON.stringify(questions)
-                  );
-                  sessionStorage.setItem("quiz_complete", "true");
+              // Navigate to question page once we have the first question
+              // This happens only the first time
+              if (
+                !sessionStorage.getItem("quiz_navigation_started") &&
+                questions.length > 0
+              ) {
+                sessionStorage.setItem("quiz_navigation_started", "true");
+                addDebugInfo("Navigating to question page");
 
-                  // Explicitly trigger a storage event for the current window
-                  window.dispatchEvent(new Event("storage"));
-                }
+                // Short delay to ensure state is saved before navigation
+                setTimeout(() => {
+                  router.push("/quiz/question");
+                }, 100);
+              } else {
+                // For subsequent updates, just update the stored data
+                addDebugInfo(
+                  `Updating questions: ${questions.length} total, complete: ${isComplete}`
+                );
+
+                // Explicitly trigger a storage event for the current window
+                window.dispatchEvent(new Event("storage"));
               }
+            } else {
+              addDebugInfo("No questions received yet");
             }
           },
           (error) => {
             console.error("Error generating questions:", error);
-            // TODO: Handle error state
+            setError(error);
+            addDebugInfo(`Error: ${error}`);
           }
         );
       } catch (error) {
         console.error("Error starting quiz:", error);
-        // TODO: Handle error state
+        setError(
+          `Error starting quiz: ${
+            error instanceof Error ? error.message : String(error)
+          }`
+        );
+        addDebugInfo(`Start error: ${error}`);
       }
     };
 
+    // Clear previous navigation flag when starting
+    sessionStorage.removeItem("quiz_navigation_started");
+
     startQuizGeneration();
-  }, [topic, questionCount, difficulty, router]);
+  }, [topic, questionCount, difficulty, router, addDebugInfo]);
+
+  // If there's an error, show it
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center max-w-2xl">
+          <h1 className="text-2xl font-bold mb-6 text-red-600">
+            Error Generating Questions
+          </h1>
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+            {error}
+          </div>
+          <button
+            onClick={() => router.replace("/")}
+            className="px-6 py-3 bg-purple-600 text-white rounded-lg"
+          >
+            Go Back
+          </button>
+
+          {debugInfo.length > 0 && (
+            <div className="mt-6 text-left">
+              <h2 className="text-lg font-semibold mb-2">Debug Information:</h2>
+              <div className="bg-gray-100 p-3 rounded text-xs">
+                {debugInfo.map((info, index) => (
+                  <div key={index} className="mb-1">
+                    {info}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -145,6 +207,19 @@ function LoadingContent() {
           <div className="text-sm text-gray-500 mt-2">
             {topic && <span>Topic: {topic}</span>}
           </div>
+
+          {/* Show debug info in development */}
+          {debugInfo.length > 0 && (
+            <div className="mt-4 text-left w-full max-w-md">
+              <div className="bg-gray-100 p-2 rounded text-xs overflow-auto max-h-24">
+                {debugInfo.map((info, index) => (
+                  <div key={index} className="mb-1">
+                    {info}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
