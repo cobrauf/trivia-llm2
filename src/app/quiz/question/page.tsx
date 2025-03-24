@@ -314,14 +314,6 @@ export default function QuestionPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      {/* Back to Welcome button */}
-      <button
-        onClick={() => setShowBackConfirmation(true)}
-        className="fixed top-3 left-4 px-2 bg-blue hover:bg-purple-900 text-white rounded-md transition-colors"
-      >
-        ← Back
-      </button>
-
       <div className="w-full max-w-2xl mt-0 p-6 pt-4 rounded-xl bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900 text-white">
         {/* Navigation */}
         <div className="flex justify-between items-center mb-3">
@@ -489,6 +481,24 @@ export default function QuestionPage() {
             <div>{currentQuestion.explanation}</div>
           </div>
         )}
+
+        {/* Question Back Navigation */}
+        <div className="mt-4 flex justify-center">
+          <button
+            onClick={() => setShowBackConfirmation(true)}
+            className="px-4 py-0 text-xs rounded border-0 border-white transition-colors bg-purple-0 hover:bg-purple-900 disabled:bg-gray-600 disabled:hover:bg-gray-600"
+          >
+            ← Back to Trivia Setup
+          </button>
+        </div>
+
+        {/* Back to Welcome button */}
+        {/* <button
+          onClick={() => setShowBackConfirmation(true)}
+          className="fixed top-3 left-4 px-2 bg-blue hover:bg-purple-900 text-white rounded-md transition-colors"
+        >
+          ← Back
+        </button> */}
       </div>
 
       {/* Back Navigation Confirmation Modal */}

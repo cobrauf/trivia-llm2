@@ -11,7 +11,8 @@ import { QUIZ_CONSTANTS, DifficultyLevel } from "@/lib/quiz";
 const USE_LOCAL_LLM = process.env.USE_LOCAL_LLM === "true";
 
 // OpenRouter model config
-const LLM_MODEL = "google/gemini-2.0-flash-thinking-exp:free";
+// const LLM_MODEL = "google/gemini-2.0-flash-thinking-exp:free";
+const LLM_MODEL = "google/gemini-2.0-flash-001";
 
 // Local LLM config (from environment variables)
 const LOCAL_LLM_URL =
