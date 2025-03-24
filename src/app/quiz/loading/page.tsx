@@ -110,9 +110,7 @@ function LoadingFallback() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8 p-8 rounded-xl bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900 text-white text-center">
-        <h1 className="text-2xl font-bold mb-6">
-          Getting Your Trivia Ready...
-        </h1>
+        <h1 className="text-2xl font-bold mb-6">Generating Questions...</h1>
 
         <div className="flex justify-center mb-8">
           <LoadingSpinner />

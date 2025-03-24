@@ -60,7 +60,7 @@ export default function QuizSummaryPage() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-2xl space-y-6 p-2 rounded-xl bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900 text-white">
         <div className="text-center mb-2">
-          <h1 className="text-lg font-bold mb-0">Quiz Complete!</h1>
+          <h1 className="text-lg font-bold mb-0">Trivia Complete!</h1>
           <div className="text-base">
             Score: {score} / {totalQuestions} ({percentage}%)
           </div>
@@ -121,7 +121,7 @@ export default function QuizSummaryPage() {
           onClick={() => router.push("/")}
           className="w-full px-6 py-3 rounded-lg border-0 border-white bg-blue-600 hover:bg-blue-700"
         >
-          Start New Quiz
+          Start New Round
         </button>
       </div>
     </div>
