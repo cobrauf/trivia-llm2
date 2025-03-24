@@ -6,8 +6,45 @@ import {
 } from "@/schemas/question";
 import { QUIZ_CONSTANTS, DifficultyLevel } from "@/lib/quiz";
 
-// const LLM_MODEL = "google/gemini-2.0-flash-exp:free";
+// Toggle for using local LLM instead of OpenRouter
+// Read from environment variable or default to false
+const USE_LOCAL_LLM = process.env.USE_LOCAL_LLM === "true";
+
+// OpenRouter model config
 const LLM_MODEL = "google/gemini-2.0-flash-thinking-exp:free";
+
+// Local LLM config (from environment variables)
+const LOCAL_LLM_URL =
+  process.env.LOCAL_LLM_URL || "http://localhost:1234/v1/chat/completions";
+const LOCAL_LLM_MODEL =
+  process.env.LOCAL_LLM_MODEL || "wizard-vicuna-13b-uncensored";
+const LOCAL_LLM_API_KEY = process.env.LOCAL_LLM_API_KEY || "";
+
+// Log LLM configuration on startup
+if (typeof window === "undefined") {
+  // Only on server-side
+  console.log("------------------------------------");
+  console.log(
+    `LLM Configuration: ${USE_LOCAL_LLM ? "LOCAL LLM" : "OPENROUTER"}`
+  );
+  if (USE_LOCAL_LLM) {
+    console.log(`- URL: ${LOCAL_LLM_URL}`);
+    console.log(`- Model: ${LOCAL_LLM_MODEL}`);
+    console.log(
+      `- API Key: ${
+        LOCAL_LLM_API_KEY ? "***PROVIDED***" : "***NOT PROVIDED***"
+      }`
+    );
+  } else {
+    console.log(`- Model: ${LLM_MODEL}`);
+    console.log(
+      `- API Key: ${
+        process.env.OPENROUTER_API_KEY ? "***PROVIDED***" : "***NOT PROVIDED***"
+      }`
+    );
+  }
+  console.log("------------------------------------");
+}
 
 const OpenRouterResponseSchema = z.object({
   choices: z.array(
@@ -19,6 +56,73 @@ const OpenRouterResponseSchema = z.object({
     })
   ),
 });
+
+// Function to determine which API endpoint to use
+function getLLMApiUrl(): string {
+  return USE_LOCAL_LLM
+    ? LOCAL_LLM_URL
+    : "https://openrouter.ai/api/v1/chat/completions";
+}
+
+// Function to get appropriate headers based on selected API
+function getLLMHeaders(): HeadersInit {
+  if (USE_LOCAL_LLM) {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+
+    // Add API key if provided
+    if (LOCAL_LLM_API_KEY) {
+      headers.Authorization = `Bearer ${LOCAL_LLM_API_KEY}`;
+    }
+
+    return headers;
+  } else {
+    // OpenRouter headers
+    return {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      "HTTP-Referer": process.env.VERCEL_URL || "http://localhost:3000",
+      "X-Title": "Trivia Question Generator",
+    };
+  }
+}
+
+// Function to create the appropriate request body for the selected API
+function createLLMRequestBody(
+  params: QuestionGenerationParams,
+  stream: boolean = false
+) {
+  const messages = [
+    {
+      role: "system",
+      content:
+        "You are a knowledgeable trivia expert who creates engaging, factually accurate questions.",
+    },
+    {
+      role: "user",
+      content: generatePrompt(params),
+    },
+  ];
+
+  if (USE_LOCAL_LLM) {
+    return {
+      model: LOCAL_LLM_MODEL,
+      messages,
+      temperature: 0.7,
+      max_tokens: 10000,
+      stream,
+    };
+  } else {
+    return {
+      model: LLM_MODEL,
+      messages,
+      temperature: 0.7,
+      max_tokens: 10000,
+      stream,
+    };
+  }
+}
 
 function generatePrompt(params: QuestionGenerationParams): string {
   const difficultyMap: Record<DifficultyLevel, string> = {
@@ -112,45 +216,31 @@ function parsePartialQuestionsFromResponse(content: string): Question[] {
   }
 }
 
+// Update the generateQuestions function to use the helper functions
 export async function generateQuestions(
   params: QuestionGenerationParams
 ): Promise<Question[]> {
-  if (!process.env.OPENROUTER_API_KEY) {
+  if (!USE_LOCAL_LLM && !process.env.OPENROUTER_API_KEY) {
     throw new Error("OPENROUTER_API_KEY environment variable is not set");
   }
 
-  const response = await fetch(
-    "https://openrouter.ai/api/v1/chat/completions",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "HTTP-Referer": process.env.VERCEL_URL || "http://localhost:3000",
-        "X-Title": "Trivia Question Generator",
-      },
-      body: JSON.stringify({
-        model: LLM_MODEL,
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are a knowledgeable trivia expert who creates engaging, factually accurate questions.",
-          },
-          {
-            role: "user",
-            content: generatePrompt(params),
-          },
-        ],
-        temperature: 0.7,
-        max_tokens: 10000,
-      }),
-    }
+  const apiUrl = getLLMApiUrl();
+  const headers = getLLMHeaders();
+  const body = createLLMRequestBody(params);
+
+  console.log(
+    `Using ${USE_LOCAL_LLM ? "local LLM" : "OpenRouter"} API at ${apiUrl}`
   );
+
+  const response = await fetch(apiUrl, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+  });
 
   if (!response.ok) {
     const error = await response.text();
-    throw new Error(`OpenRouter API error: ${error}`);
+    throw new Error(`API error: ${error}`);
   }
 
   const result = OpenRouterResponseSchema.parse(await response.json());
@@ -160,46 +250,33 @@ export async function generateQuestions(
   return questions;
 }
 
+// Update the streaming function to use the helper functions
 export async function* generateQuestionsStream(
   params: QuestionGenerationParams
 ): AsyncGenerator<{ questions?: Question[]; done?: boolean; total: number }> {
-  if (!process.env.OPENROUTER_API_KEY) {
+  if (!USE_LOCAL_LLM && !process.env.OPENROUTER_API_KEY) {
     throw new Error("OPENROUTER_API_KEY environment variable is not set");
   }
 
-  const response = await fetch(
-    "https://openrouter.ai/api/v1/chat/completions",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "HTTP-Referer": process.env.VERCEL_URL || "http://localhost:3000",
-        "X-Title": "Trivia Question Generator",
-      },
-      body: JSON.stringify({
-        model: LLM_MODEL,
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are a knowledgeable trivia expert who creates engaging, factually accurate questions.",
-          },
-          {
-            role: "user",
-            content: generatePrompt(params),
-          },
-        ],
-        temperature: 0.7,
-        max_tokens: 10000,
-        stream: true,
-      }),
-    }
+  const apiUrl = getLLMApiUrl();
+  const headers = getLLMHeaders();
+  const body = createLLMRequestBody(params, true);
+
+  console.log(
+    `Using ${
+      USE_LOCAL_LLM ? "local LLM" : "OpenRouter"
+    } streaming API at ${apiUrl}`
   );
+
+  const response = await fetch(apiUrl, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+  });
 
   if (!response.ok) {
     const error = await response.text();
-    throw new Error(`OpenRouter API error: ${error}`);
+    throw new Error(`API error: ${error}`);
   }
 
   if (!response.body) {
@@ -243,7 +320,7 @@ export async function* generateQuestionsStream(
       const chunk = decoder.decode(value, { stream: true });
       buffer += chunk;
 
-      // Process SSE format from OpenRouter
+      // Process SSE format (both OpenRouter and many local LLMs use this format)
       const lines = buffer.split("\n");
       buffer = lines.pop() || "";
 
@@ -258,9 +335,17 @@ export async function* generateQuestionsStream(
 
           try {
             const parsed = JSON.parse(data);
-            if (parsed.choices && parsed.choices[0]?.delta?.content) {
+            // Handle both OpenRouter and standard LLM API formats
+            const contentDelta =
+              parsed.choices &&
+              // OpenRouter format
+              (parsed.choices[0]?.delta?.content ||
+                // Standard format (e.g., local LLMs)
+                parsed.choices[0]?.message?.content);
+
+            if (contentDelta) {
               // Accumulate content for parsing questions
-              fullContent += parsed.choices[0].delta.content;
+              fullContent += contentDelta;
 
               // Try to parse questions from what we have so far
               const questions = parsePartialQuestionsFromResponse(fullContent);
