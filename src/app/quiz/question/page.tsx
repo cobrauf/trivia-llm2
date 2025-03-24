@@ -488,7 +488,7 @@ export default function QuestionPage() {
             onClick={() => setShowBackConfirmation(true)}
             className="px-4 py-0 text-xs rounded border-0 border-white transition-colors bg-purple-0 hover:bg-purple-900 disabled:bg-gray-600 disabled:hover:bg-gray-600"
           >
-            ← Back to Trivia Setup
+            ← Back to trivia setup
           </button>
         </div>
 
