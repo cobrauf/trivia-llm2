@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Question } from "@/schemas/question";
+import { ConfirmationModal } from "@/components/ConfirmationModal";
 
 export interface QuestionWithShuffledAnswers extends Question {
   shuffledAnswers: string[];
@@ -74,6 +75,34 @@ export default function QuestionPage() {
   const [isFlashing, setIsFlashing] = useState(false);
   const [flashCount, setFlashCount] = useState(0);
   const [isCorrectAnswer, setIsCorrectAnswer] = useState(false);
+  const [showBackConfirmation, setShowBackConfirmation] = useState(false);
+
+  // Handle browser back button
+  useEffect(() => {
+    const handleBackButton = (e: PopStateEvent) => {
+      e.preventDefault();
+      setShowBackConfirmation(true);
+      // Push a new state to prevent immediate back navigation
+      window.history.pushState(null, "", window.location.pathname);
+    };
+
+    // Push initial state
+    window.history.pushState(null, "", window.location.pathname);
+    window.addEventListener("popstate", handleBackButton);
+
+    return () => {
+      window.removeEventListener("popstate", handleBackButton);
+    };
+  }, []);
+
+  const handleBackConfirm = () => {
+    setShowBackConfirmation(false);
+    router.push("/");
+  };
+
+  const handleBackCancel = () => {
+    setShowBackConfirmation(false);
+  };
 
   useEffect(() => {
     // Load questions from sessionStorage
@@ -285,7 +314,15 @@ export default function QuestionPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl p-6 pt-4 rounded-xl bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900 text-white">
+      {/* Back to Welcome button */}
+      <button
+        onClick={() => setShowBackConfirmation(true)}
+        className="fixed top-4 left-4 px-4 py-2 bg-blue hover:bg-purple-900 text-white rounded-md transition-colors"
+      >
+        ← Back
+      </button>
+
+      <div className="w-full max-w-2xl mt-12 p-6 pt-4 rounded-xl bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900 text-white">
         {/* Navigation */}
         <div className="flex justify-between items-center mb-3">
           <button
@@ -293,7 +330,7 @@ export default function QuestionPage() {
             disabled={currentQuestionIndex === 0}
             className="px-4 py-2 rounded border-0 border-white transition-colors bg-purple-900 hover:bg-purple-700 disabled:bg-gray-600 disabled:hover:bg-gray-600"
           >
-            Back
+            Prev
           </button>
           <div className="text-center">
             <div>Question</div>
@@ -452,6 +489,14 @@ export default function QuestionPage() {
           </div>
         )}
       </div>
+
+      {/* Back Navigation Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showBackConfirmation}
+        message="Go back to trivia setup?"
+        onConfirm={handleBackConfirm}
+        onCancel={handleBackCancel}
+      />
     </div>
   );
 }
