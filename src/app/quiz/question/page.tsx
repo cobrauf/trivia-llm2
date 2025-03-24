@@ -144,7 +144,7 @@ export default function QuestionPage() {
             setShowLoadedMessage(true);
             setTimeout(() => {
               setShowLoadedMessage(false);
-            }, 3000);
+            }, 10000);
           }
         } catch (error) {
           console.error("Error parsing stored questions:", error);
@@ -167,8 +167,6 @@ export default function QuestionPage() {
     };
   }, [questions.length, isLoadingMore]);
 
-  // Handle showing and hiding the "All questions generated" message
-  // Handle showing the "All questions generated" message
   useEffect(() => {
     if (!isLoadingMore && questions.length > 1) {
       setShowLoadedMessage(true);
