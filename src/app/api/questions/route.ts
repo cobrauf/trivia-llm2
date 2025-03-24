@@ -22,23 +22,14 @@ export async function POST(request: Request) {
       streaming: body.stream,
     });
 
-    // When streaming, always request all questions at once
-    const questionCount = body.stream
-      ? params.questionCount
-      : body.remaining
-      ? params.questionCount - 1
-      : 1;
+    // Always use the full question count
+    const questionCount = params.questionCount;
 
-    // Pass the initial question if provided to avoid duplicates
-    const initialQuestion = body.initialQuestion
-      ? body.initialQuestion
-      : undefined;
-
-    // Create generator params
+    // We no longer need the initialQuestion param to avoid duplicates
+    // since we're generating all questions at once
     const generatorParams = {
       ...params,
       questionCount,
-      initialQuestion,
     };
 
     // If streaming is requested, use the streaming version

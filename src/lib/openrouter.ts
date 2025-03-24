@@ -20,10 +20,7 @@ const OpenRouterResponseSchema = z.object({
   ),
 });
 
-function generatePrompt(
-  params: QuestionGenerationParams,
-  initialQuestion?: any
-): string {
+function generatePrompt(params: QuestionGenerationParams): string {
   const difficultyMap: Record<DifficultyLevel, string> = {
     [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ROOKIE]: "beginner",
     [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.PRO]: "intermediate",
@@ -35,15 +32,6 @@ function generatePrompt(
   } multiple choice trivia questions about ${params.topic} at ${
     difficultyMap[params.difficulty]
   } level.`;
-
-  // If initialQuestion is provided, add instructions to avoid duplicating it
-  if (initialQuestion) {
-    prompt += `\n\nAvoid generating a question similar to the following:
-Question: "${initialQuestion.question}"
-Answer: "${initialQuestion.correctAnswer}"
-
-Generate completely different questions both in topic and wording.`;
-  }
 
   prompt += `\n\nFor each question:
 - Question text must be no more than 50 words
@@ -125,7 +113,7 @@ function parsePartialQuestionsFromResponse(content: string): Question[] {
 }
 
 export async function generateQuestions(
-  params: QuestionGenerationParams & { initialQuestion?: any }
+  params: QuestionGenerationParams
 ): Promise<Question[]> {
   if (!process.env.OPENROUTER_API_KEY) {
     throw new Error("OPENROUTER_API_KEY environment variable is not set");
@@ -151,13 +139,11 @@ export async function generateQuestions(
           },
           {
             role: "user",
-            content: generatePrompt(params, params.initialQuestion),
+            content: generatePrompt(params),
           },
         ],
         temperature: 0.7,
         max_tokens: 10000,
-        // Add cache control to avoid returning cached results
-        cache: params.initialQuestion ? "none" : undefined,
       }),
     }
   );
@@ -175,7 +161,7 @@ export async function generateQuestions(
 }
 
 export async function* generateQuestionsStream(
-  params: QuestionGenerationParams & { initialQuestion?: any }
+  params: QuestionGenerationParams
 ): AsyncGenerator<{ questions?: Question[]; done?: boolean; total: number }> {
   if (!process.env.OPENROUTER_API_KEY) {
     throw new Error("OPENROUTER_API_KEY environment variable is not set");
@@ -201,14 +187,12 @@ export async function* generateQuestionsStream(
           },
           {
             role: "user",
-            content: generatePrompt(params, params.initialQuestion),
+            content: generatePrompt(params),
           },
         ],
         temperature: 0.7,
         max_tokens: 10000,
         stream: true,
-        // Add cache control to avoid returning cached results
-        cache: params.initialQuestion ? "none" : undefined,
       }),
     }
   );
