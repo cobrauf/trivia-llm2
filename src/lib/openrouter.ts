@@ -6,15 +6,15 @@ import {
 } from "@/schemas/question";
 import { QUIZ_CONSTANTS, DifficultyLevel } from "@/lib/quiz";
 
-// Toggle for using local LLM instead of OpenRouter
-// Read from environment variable or default to false
+// Configuration from environment variables
 const USE_LOCAL_LLM = process.env.USE_LOCAL_LLM === "true";
 
-// OpenRouter model config
-// const LLM_MODEL = "google/gemini-2.0-flash-thinking-exp:free";
-const LLM_MODEL = "google/gemini-2.0-flash-001";
+// OpenRouter model config with fallback
+const LLM_MODEL_1 =
+  process.env.LLM_MODEL_1 || "google/gemini-2.0-flash-thinking-exp:free";
+const LLM_MODEL_2 = process.env.LLM_MODEL_2 || "google/gemini-2.0-flash-001";
 
-// Local LLM config (from environment variables)
+// Local LLM config
 const LOCAL_LLM_URL =
   process.env.LOCAL_LLM_URL || "http://localhost:1234/v1/chat/completions";
 const LOCAL_LLM_MODEL =
@@ -37,7 +37,8 @@ if (typeof window === "undefined") {
       }`
     );
   } else {
-    console.log(`- Model: ${LLM_MODEL}`);
+    console.log(`- Primary Model: ${LLM_MODEL_1}`);
+    console.log(`- Fallback Model: ${LLM_MODEL_2}`);
     console.log(
       `- API Key: ${
         process.env.OPENROUTER_API_KEY ? "***PROVIDED***" : "***NOT PROVIDED***"
@@ -88,12 +89,18 @@ function getLLMHeaders(): HeadersInit {
     };
   }
 }
+interface LLMRequestOptions {
+  params: QuestionGenerationParams;
+  stream?: boolean;
+  model?: string;
+}
 
 // Function to create the appropriate request body for the selected API
-function createLLMRequestBody(
-  params: QuestionGenerationParams,
-  stream: boolean = false
-) {
+function createLLMRequestBody({
+  params,
+  stream = false,
+  model = LLM_MODEL_1,
+}: LLMRequestOptions) {
   const messages = [
     {
       role: "system",
@@ -116,7 +123,7 @@ function createLLMRequestBody(
     };
   } else {
     return {
-      model: LLM_MODEL,
+      model: model || LLM_MODEL_1,
       messages,
       temperature: 0.7,
       max_tokens: 10000,
@@ -217,7 +224,56 @@ function parsePartialQuestionsFromResponse(content: string): Question[] {
   }
 }
 
-// Update the generateQuestions function to use the helper functions
+// Utility function to handle API requests with fallback
+async function makeRequestWithFallback<T>(
+  apiUrl: string,
+  headers: HeadersInit,
+  requestBody: any,
+  options: { stream?: boolean } = {}
+): Promise<Response> {
+  try {
+    // Try with primary model
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(requestBody),
+    });
+
+    // If response is ok, return it
+    if (response.ok) {
+      return response;
+    }
+
+    // If not using OpenRouter or already using fallback model, throw error
+    if (USE_LOCAL_LLM || requestBody.model === LLM_MODEL_2) {
+      throw new Error(await response.text());
+    }
+
+    // Try with fallback model
+    console.log("Primary model failed, trying fallback model...");
+    const fallbackBody = {
+      ...requestBody,
+      model: LLM_MODEL_2,
+    };
+
+    const fallbackResponse = await fetch(apiUrl, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(fallbackBody),
+    });
+
+    if (!fallbackResponse.ok) {
+      throw new Error(await fallbackResponse.text());
+    }
+
+    return fallbackResponse;
+  } catch (error) {
+    console.error("Error in makeRequestWithFallback:", error);
+    throw error;
+  }
+}
+
+// Update the generateQuestions function to use the fallback mechanism
 export async function generateQuestions(
   params: QuestionGenerationParams
 ): Promise<Question[]> {
@@ -227,23 +283,13 @@ export async function generateQuestions(
 
   const apiUrl = getLLMApiUrl();
   const headers = getLLMHeaders();
-  const body = createLLMRequestBody(params);
+  const body = createLLMRequestBody({ params });
 
   console.log(
     `Using ${USE_LOCAL_LLM ? "local LLM" : "OpenRouter"} API at ${apiUrl}`
   );
 
-  const response = await fetch(apiUrl, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(body),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`API error: ${error}`);
-  }
-
+  const response = await makeRequestWithFallback(apiUrl, headers, body);
   const result = OpenRouterResponseSchema.parse(await response.json());
   const questions = parseQuestionsFromResponse(
     result.choices[0].message.content
@@ -251,7 +297,7 @@ export async function generateQuestions(
   return questions;
 }
 
-// Update the streaming function to use the helper functions
+// Update the streaming function with fallback support
 export async function* generateQuestionsStream(
   params: QuestionGenerationParams
 ): AsyncGenerator<{ questions?: Question[]; done?: boolean; total: number }> {
@@ -261,7 +307,7 @@ export async function* generateQuestionsStream(
 
   const apiUrl = getLLMApiUrl();
   const headers = getLLMHeaders();
-  const body = createLLMRequestBody(params, true);
+  const body = createLLMRequestBody({ params, stream: true });
 
   console.log(
     `Using ${
@@ -271,10 +317,9 @@ export async function* generateQuestionsStream(
 
   let response;
   try {
-    response = await fetch(apiUrl, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(body),
+    // Try with primary model first
+    response = await makeRequestWithFallback(apiUrl, headers, body, {
+      stream: true,
     });
   } catch (error) {
     console.error("Error connecting to LLM API:", error);
