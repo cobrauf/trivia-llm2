@@ -25,13 +25,7 @@ const useTypewriter = (text: string, questionIndex: number, speed = 50) => {
   const startTyping = useCallback(() => {
     if (!text) return;
 
-    if (seenQuestionsRef.current.has(questionIndex)) {
-      // If we've seen this question before, show it immediately
-      setDisplayedText(text);
-      setIsTyping(false);
-      return;
-    }
-
+    // Remove duplicate check logic - always type out the question regardless of if we've seen it
     setIsTyping(true);
     let currentText = "";
     let index = 0;
@@ -145,8 +139,12 @@ export default function QuestionPage() {
           console.log("Storage changed, checking for new questions");
           const parsedQuestions = JSON.parse(storedQuestions) as Question[];
 
-          // Only update if there are more questions than we currently have
-          if (parsedQuestions.length > questions.length) {
+          // Debug log
+          console.log("Current questions count:", questions.length);
+          console.log("Stored questions count:", parsedQuestions.length);
+
+          // Only update if there are questions in storage
+          if (parsedQuestions.length > 0) {
             console.log(
               "Updating questions from storage, new count:",
               parsedQuestions.length,
@@ -154,23 +152,17 @@ export default function QuestionPage() {
               questions.length
             );
 
-            // Get only the new questions
-            const newQuestions = parsedQuestions.slice(questions.length);
-
-            // Randomize answers for just the new questions
-            const newQuestionsWithRandomizedAnswers: QuestionWithShuffledAnswers[] =
-              newQuestions.map((q) => ({
+            // Instead of appending, replace the entire questions array to avoid duplicates
+            const questionsWithRandomizedAnswers: QuestionWithShuffledAnswers[] =
+              parsedQuestions.map((q) => ({
                 ...q,
                 shuffledAnswers: [q.correctAnswer, ...q.incorrectAnswers].sort(
                   () => Math.random() - 0.5
                 ),
               }));
 
-            // Append the new questions to our existing ones
-            setQuestions((prevQuestions) => [
-              ...prevQuestions,
-              ...newQuestionsWithRandomizedAnswers,
-            ]);
+            // Completely replace the questions array instead of appending
+            setQuestions(questionsWithRandomizedAnswers);
 
             // Show a notification about new questions
             setShowLoadedMessage(true);

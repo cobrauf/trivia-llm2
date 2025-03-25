@@ -19,6 +19,9 @@ export async function generateQuestionsSequentially(
       `Starting question generation for ${params.questionCount} questions about ${params.topic}`
     );
 
+    // Add extensive logging to track LLM responses
+    console.log("==== DEBUG: Starting question generation process ====");
+
     // Set up fetch with a timeout for network connectivity issues
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
@@ -81,7 +84,7 @@ export async function generateQuestionsSequentially(
           }
 
           if (done) {
-            console.log("Stream complete");
+            console.log("==== DEBUG: Stream complete ====");
             // When stream is complete and we have at least one question, mark as complete
             if (allQuestions.length > 0) {
               onProgress({
@@ -116,6 +119,12 @@ export async function generateQuestionsSequentially(
                 line.slice(0, 50) + (line.length > 50 ? "..." : "")
               );
               const data = JSON.parse(line);
+              
+              // Log entire response data for debugging
+              console.log("==== FULL LLM RESPONSE ====");
+              console.log(JSON.stringify(data, null, 2));
+              console.log("==== END FULL LLM RESPONSE ====");
+              
               console.log("Parsed data:", data);
 
               // Mark that we've received valid data
@@ -130,17 +139,15 @@ export async function generateQuestionsSequentially(
               // Check if we received new questions
               if (data.questions && data.questions.length > 0) {
                 console.log(`Received ${data.questions.length} new questions`);
-                // Add new questions to our collection
+                
+                // Add new questions to our collection (without duplicate checking)
                 let hasNewQuestions = false;
 
                 for (const question of data.questions) {
-                  // Only add if it's not a duplicate
-                  if (
-                    !allQuestions.some((q) => q.question === question.question)
-                  ) {
-                    allQuestions.push(question);
-                    hasNewQuestions = true;
-                  }
+                  // Simply add all questions without any checks
+                  console.log("Adding question:", question.question.substring(0, 30) + "...");
+                  allQuestions.push(question);
+                  hasNewQuestions = true;
                 }
 
                 if (hasNewQuestions) {
