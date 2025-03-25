@@ -20,6 +20,9 @@ export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [hasError, setHasError] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState<
+    "connecting" | "generating" | undefined
+  >();
 
   const handleSubmit = async () => {
     setHasError(false);
@@ -29,6 +32,7 @@ export default function Home() {
 
     setIsGenerating(true);
     setProgress({ current: 0, total: questionCount });
+    setLoadingStatus("connecting");
 
     try {
       await generateQuestionsSequentially(
@@ -38,6 +42,10 @@ export default function Home() {
           difficulty,
         },
         ({ questions, isComplete }) => {
+          // Set status to generating when we start receiving questions
+          if (questions.length === 0) {
+            setLoadingStatus("generating");
+          }
           // Update progress
           setProgress({ current: questions.length, total: questionCount });
 
@@ -56,11 +64,13 @@ export default function Home() {
           console.error("Error generating questions:", error);
           setHasError(true);
           setProgress({ current: 0, total: questionCount }); // Reset progress
+          setLoadingStatus(undefined);
         }
       );
     } catch (error) {
       console.error("Error starting quiz:", error);
       setHasError(true);
+      setLoadingStatus(undefined);
       // Keep modal visible to show error UI
     }
   };
@@ -107,11 +117,13 @@ export default function Home() {
           questionCount={questionCount}
           difficulty={difficulty}
           hasError={hasError}
+          status={loadingStatus}
           onRetry={() => {
             handleSubmit();
           }}
           onCancel={() => {
             setIsGenerating(false);
+            setLoadingStatus(undefined);
             router.push("/");
           }}
         />

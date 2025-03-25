@@ -10,6 +10,7 @@ interface LoadingModalProps {
   onRetry?: () => void;
   onCancel?: () => void;
   hasError?: boolean;
+  status?: "connecting" | "generating";
 }
 
 const LoadingSpinner = () => (
@@ -25,6 +26,7 @@ export function LoadingModal({
   onRetry,
   onCancel,
   hasError = false,
+  status,
 }: LoadingModalProps) {
   const [showTimeoutButtons, setShowTimeoutButtons] = useState(false);
 
@@ -54,11 +56,19 @@ export function LoadingModal({
         <div className="flex justify-center mb-8">
           {showTimeoutButtons ? (
             <div className="text-red-300">
-              (Looks like we're having trouble generating your questions, please
-              try again)
+              (We're having trouble connecting, please try again)
             </div>
           ) : (
-            <LoadingSpinner />
+            <div className="space-y-2">
+              <LoadingSpinner />
+              {status && (
+                <div className="text-sm text-purple-200">
+                  {status === "connecting"
+                    ? "Connecting to service..."
+                    : "Generating questions..."}
+                </div>
+              )}
+            </div>
           )}
         </div>
 
@@ -75,13 +85,13 @@ export function LoadingModal({
             <span className="font-medium">Difficulty:</span>
             <span className="ml-2 capitalize">{difficulty}</span>
           </div>
-          <div className="text-center text-sm text-purple-200">
+          {/* <div className="text-center text-sm text-purple-200">
             {currentCount > 0 && currentCount < totalCount && (
               <div>
                 Fetching remaining questions... {currentCount}/{totalCount}
               </div>
             )}
-          </div>
+          </div> */}
 
           {showTimeoutButtons && (
             <div className="mt-6 flex justify-center gap-4">
