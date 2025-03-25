@@ -21,8 +21,10 @@ export default function QuizLayout({
   }, []);
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-900 to-purple-900">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_center,theme(colors.purple.900),theme(colors.gray.900))]">
       {children}
     </main>
   );
 }
+
+//bg-[radial-gradient(circle_at_center,theme(colors.purple.600),theme(colors.purple.900))]

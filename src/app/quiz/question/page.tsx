@@ -351,7 +351,7 @@ export default function QuestionPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl mt-0 p-6 pt-4 rounded-xl bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900 text-white">
+      <div className="w-full max-w-2xl mt-0 p-6 pt-4 rounded-xl bg-[radial-gradient(circle_at_center,theme(colors.purple.700),theme(colors.purple.900))] text-white">
         {/* Navigation */}
         <div className="flex justify-between items-center mb-3">
           <button

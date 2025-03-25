@@ -48,7 +48,7 @@ export function LoadingModal({
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
 
       {/* Modal */}
-      <div className="relative z-10 w-full max-w-md space-y-8 p-8 ml-4 mr-4 rounded-xl bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900 text-white text-center">
+      <div className="relative z-10 w-full max-w-md space-y-8 p-8 ml-4 mr-4 rounded-xl bg-[radial-gradient(circle_at_center,theme(colors.purple.600),theme(colors.purple.900))] text-white text-center">
         <h2 className="text-lg font-bold mb-6">Preparing Your Trivia...</h2>
 
         <div className="flex justify-center mb-8">

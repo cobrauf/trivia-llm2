@@ -241,7 +241,7 @@ function LoadingContent() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
+        <h1 className="text-4xl font-bold mb-6 bg-clip-text text-transparent bg-[radial-gradient(circle_at_center,theme(colors.purple.600),theme(colors.purple.900))]">
           Generating Your Trivia Challenge
         </h1>
 
@@ -315,7 +315,7 @@ function LoadingContent() {
 function LoadingFallback() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8 p-8 rounded-xl bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900 text-white text-center">
+      <div className="w-full max-w-md space-y-8 p-8 rounded-xl bg-[radial-gradient(circle_at_center,theme(colors.purple.600),theme(colors.purple.900))] text-white text-center">
         <h1 className="text-2xl font-bold mb-6">Generating Questions...</h1>
 
         <div className="flex justify-center mb-8">

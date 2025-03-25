@@ -58,7 +58,7 @@ export default function QuizSummaryPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl space-y-6 p-2 rounded-xl bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900 text-white">
+      <div className="w-full max-w-2xl space-y-6 p-2 rounded-xl bg-[radial-gradient(circle_at_center,theme(colors.purple.600),theme(colors.purple.900))] text-white">
         <div className="text-center mb-2">
           <h1 className="text-lg font-bold mb-0">Trivia Complete!</h1>
           <div className="text-base">
