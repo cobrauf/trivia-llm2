@@ -54,7 +54,8 @@ export function LoadingModal({
         <div className="flex justify-center mb-8">
           {showTimeoutButtons ? (
             <div className="text-red-300">
-              (Looks like we're having trouble generating your questions)
+              (Looks like we're having trouble generating your questions, please
+              try again)
             </div>
           ) : (
             <LoadingSpinner />

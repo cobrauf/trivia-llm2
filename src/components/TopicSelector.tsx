@@ -5,7 +5,7 @@ interface TopicSelectorProps {
   onChange: (value: string) => void;
 }
 
-const MAX_LENGTH = 24;
+const MAX_LENGTH = 50;
 
 function useTypewriterPlaceholder(text: string, speed: number = 50) {
   const [placeholder, setPlaceholder] = useState("");

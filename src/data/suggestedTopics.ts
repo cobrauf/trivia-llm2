@@ -9,7 +9,6 @@ export const TOPIC_CATEGORIES: TopicCategory[] = [
     topics: [
       "General Knowledge",
       "History",
-      "Wildlife",
       "Geography",
       "Science",
       "Art",
@@ -21,7 +20,7 @@ export const TOPIC_CATEGORIES: TopicCategory[] = [
       "Technology",
       "Politics",
       "Nature",
-      "Mathematics",
+      "Math",
       "Languages",
       "Philosophy",
       "Architecture",
@@ -30,15 +29,17 @@ export const TOPIC_CATEGORIES: TopicCategory[] = [
   {
     name: "Specific Interests",
     topics: [
-      "Famous Inventions",
       "Oscar Winners",
       "Superheroes",
       "Video Games",
       "Disgusting Foods",
       "Dinosaurs",
-      "Artificial Intelligence",
-      "Ridiculous World Records",
+      "Recent TV Shows",
+      "AI",
+      "Urban Legends",
+      "World Records",
       "Absurd Products",
+      "Famous Inventions",
     ],
   },
 ];
