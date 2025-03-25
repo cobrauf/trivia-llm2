@@ -135,7 +135,7 @@ function createLLMRequestBody({
 function generatePrompt(params: QuestionGenerationParams): string {
   const difficultyMap: Record<DifficultyLevel, string> = {
     [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ROOKIE]: "beginner",
-    [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.PRO]: "intermediate",
+    [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.NORMAL]: "intermediate",
     [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ELITE]: "advanced",
   };
 

@@ -15,7 +15,7 @@ export default function Home() {
   const [topic, setTopic] = useState("");
   const [questionCount, setQuestionCount] = useState<number>(5);
   const [difficulty, setDifficulty] = useState<DifficultyLevel>(
-    QUIZ_CONSTANTS.DIFFICULTY_LEVELS.PRO
+    QUIZ_CONSTANTS.DIFFICULTY_LEVELS.NORMAL
   );
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });

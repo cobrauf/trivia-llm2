@@ -536,7 +536,7 @@ export default function QuestionPage() {
       {/* Back Navigation Confirmation Modal */}
       <ConfirmationModal
         isOpen={showBackConfirmation}
-        message="Go back to trivia setup?"
+        message="Go back to trivia config? Progress will be lost."
         onConfirm={handleBackConfirm}
         onCancel={handleBackCancel}
       />

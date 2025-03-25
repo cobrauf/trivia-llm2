@@ -31,6 +31,7 @@ export const TOPIC_CATEGORIES: TopicCategory[] = [
     name: "Specific Interests",
     topics: [
       "Famous Inventions",
+      "Oscar Winners",
       "Superheroes",
       "Video Games",
       "Disgusting Foods",
