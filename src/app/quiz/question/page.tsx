@@ -207,7 +207,7 @@ export default function QuestionPage() {
               setShowLoadedMessage(true);
               setTimeout(() => {
                 setShowLoadedMessage(false);
-              }, 20000);
+              }, 5000);
             }
           }
         } catch (error) {
@@ -361,10 +361,10 @@ export default function QuestionPage() {
           >
             Prev
           </button>
-          <div className="text-center">
-            <div>Question</div>
+          <div className="text-center text-sm">
+            {/* <div>Question</div> */}
             <div>
-              {currentQuestionIndex + 1} of{" "}
+              # {currentQuestionIndex + 1} of{" "}
               {parseInt(
                 sessionStorage.getItem("quiz_questions_total") ||
                   String(questions.length)
