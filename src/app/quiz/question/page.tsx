@@ -215,7 +215,7 @@ export default function QuestionPage() {
               setShowLoadedMessage(true);
               setTimeout(() => {
                 setShowLoadedMessage(false);
-              }, 500000);
+              }, 10000);
             }
           }
         } catch (error) {
@@ -361,7 +361,7 @@ export default function QuestionPage() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-2xl mt-0 p-6 pt-4 rounded-xl bg-[radial-gradient(circle_at_center,theme(colors.purple.700),theme(colors.purple.900))] text-white">
         {/* Navigation */}
-        <div className="flex justify-between items-center mb-3">
+        <div className="flex justify-between items-center mb-0">
           <button
             onClick={() => handleNavigation("back")}
             disabled={currentQuestionIndex === 0}
