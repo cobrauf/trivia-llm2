@@ -109,16 +109,33 @@ export default function QuestionPage() {
     }
 
     const parsedQuestions = JSON.parse(storedQuestions) as Question[];
-    // Randomize answers for each question once when loading
-    const questionsWithRandomizedAnswers: QuestionWithShuffledAnswers[] =
-      parsedQuestions.map((q) => ({
-        ...q,
-        shuffledAnswers: [q.correctAnswer, ...q.incorrectAnswers].sort(
-          () => Math.random() - 0.5
-        ),
-      }));
 
-    setQuestions(questionsWithRandomizedAnswers);
+    // Check if we already have shuffled answers in session storage
+    const storedShuffledQuestions = sessionStorage.getItem(
+      "quiz_shuffled_questions"
+    );
+
+    if (storedShuffledQuestions) {
+      // Use the previously shuffled questions to maintain consistent order
+      setQuestions(JSON.parse(storedShuffledQuestions));
+    } else {
+      // First time loading - randomize answers for each question
+      const questionsWithRandomizedAnswers: QuestionWithShuffledAnswers[] =
+        parsedQuestions.map((q) => ({
+          ...q,
+          shuffledAnswers: [q.correctAnswer, ...q.incorrectAnswers].sort(
+            () => Math.random() - 0.5
+          ),
+        }));
+
+      setQuestions(questionsWithRandomizedAnswers);
+      // Store the shuffled questions to maintain consistency
+      sessionStorage.setItem(
+        "quiz_shuffled_questions",
+        JSON.stringify(questionsWithRandomizedAnswers)
+      );
+    }
+
     setIsLoadingMore(!isComplete);
   }, [router]);
 
@@ -152,23 +169,41 @@ export default function QuestionPage() {
               questions.length
             );
 
-            // Instead of appending, replace the entire questions array to avoid duplicates
-            const questionsWithRandomizedAnswers: QuestionWithShuffledAnswers[] =
-              parsedQuestions.map((q) => ({
-                ...q,
-                shuffledAnswers: [q.correctAnswer, ...q.incorrectAnswers].sort(
-                  () => Math.random() - 0.5
-                ),
-              }));
+            // Check if we have more questions than before
+            if (parsedQuestions.length > questions.length) {
+              // Get the existing shuffled questions
+              const existingShuffledQuestions = [...questions];
 
-            // Completely replace the questions array instead of appending
-            setQuestions(questionsWithRandomizedAnswers);
+              // Only shuffle the new questions
+              const newQuestions = parsedQuestions.slice(questions.length);
+              const newShuffledQuestions: QuestionWithShuffledAnswers[] =
+                newQuestions.map((q) => ({
+                  ...q,
+                  shuffledAnswers: [
+                    q.correctAnswer,
+                    ...q.incorrectAnswers,
+                  ].sort(() => Math.random() - 0.5),
+                }));
 
-            // Show a notification about new questions
-            setShowLoadedMessage(true);
-            setTimeout(() => {
-              setShowLoadedMessage(false);
-            }, 20000);
+              // Combine existing and new questions
+              const combinedQuestions = [
+                ...existingShuffledQuestions,
+                ...newShuffledQuestions,
+              ];
+
+              // Update the state and storage
+              setQuestions(combinedQuestions);
+              sessionStorage.setItem(
+                "quiz_shuffled_questions",
+                JSON.stringify(combinedQuestions)
+              );
+
+              // Show a notification about new questions
+              setShowLoadedMessage(true);
+              setTimeout(() => {
+                setShowLoadedMessage(false);
+              }, 20000);
+            }
           }
         } catch (error) {
           console.error("Error parsing stored questions:", error);
@@ -249,7 +284,6 @@ export default function QuestionPage() {
           }
 
           // Store in session storage
-          // Store both answers and questions to preserve shuffled answers
           sessionStorage.setItem(
             "quiz_answers",
             JSON.stringify(
@@ -262,7 +296,13 @@ export default function QuestionPage() {
               )
             )
           );
-          sessionStorage.setItem("quiz_questions", JSON.stringify(questions));
+
+          // We don't need to update the quiz_questions here as it would cause reshuffling
+          // Just keep our already shuffled questions in storage
+          sessionStorage.setItem(
+            "quiz_shuffled_questions",
+            JSON.stringify(questions)
+          );
 
           return 0;
         }
