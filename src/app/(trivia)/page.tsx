@@ -69,7 +69,7 @@ export default function Home() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-4 p-4 pt-6 rounded-xl shadow-lg bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900">
         <h1 className="text-2xl font-bold text-center mb-4 text-white">
-          Smarty Pants Trivia
+          Smarty Pants-2 Trivia
         </h1>
 
         <ScrollingTopics onTopicSelect={setTopic} />

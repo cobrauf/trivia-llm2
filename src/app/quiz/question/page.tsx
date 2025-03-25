@@ -25,13 +25,7 @@ const useTypewriter = (text: string, questionIndex: number, speed = 50) => {
   const startTyping = useCallback(() => {
     if (!text) return;
 
-    if (seenQuestionsRef.current.has(questionIndex)) {
-      // If we've seen this question before, show it immediately
-      setDisplayedText(text);
-      setIsTyping(false);
-      return;
-    }
-
+    // Remove duplicate check logic - always type out the question regardless of if we've seen it
     setIsTyping(true);
     let currentText = "";
     let index = 0;
@@ -115,16 +109,33 @@ export default function QuestionPage() {
     }
 
     const parsedQuestions = JSON.parse(storedQuestions) as Question[];
-    // Randomize answers for each question once when loading
-    const questionsWithRandomizedAnswers: QuestionWithShuffledAnswers[] =
-      parsedQuestions.map((q) => ({
-        ...q,
-        shuffledAnswers: [q.correctAnswer, ...q.incorrectAnswers].sort(
-          () => Math.random() - 0.5
-        ),
-      }));
 
-    setQuestions(questionsWithRandomizedAnswers);
+    // Check if we already have shuffled answers in session storage
+    const storedShuffledQuestions = sessionStorage.getItem(
+      "quiz_shuffled_questions"
+    );
+
+    if (storedShuffledQuestions) {
+      // Use the previously shuffled questions to maintain consistent order
+      setQuestions(JSON.parse(storedShuffledQuestions));
+    } else {
+      // First time loading - randomize answers for each question
+      const questionsWithRandomizedAnswers: QuestionWithShuffledAnswers[] =
+        parsedQuestions.map((q) => ({
+          ...q,
+          shuffledAnswers: [q.correctAnswer, ...q.incorrectAnswers].sort(
+            () => Math.random() - 0.5
+          ),
+        }));
+
+      setQuestions(questionsWithRandomizedAnswers);
+      // Store the shuffled questions to maintain consistency
+      sessionStorage.setItem(
+        "quiz_shuffled_questions",
+        JSON.stringify(questionsWithRandomizedAnswers)
+      );
+    }
+
     setIsLoadingMore(!isComplete);
   }, [router]);
 
@@ -145,8 +156,12 @@ export default function QuestionPage() {
           console.log("Storage changed, checking for new questions");
           const parsedQuestions = JSON.parse(storedQuestions) as Question[];
 
-          // Only update if there are more questions than we currently have
-          if (parsedQuestions.length > questions.length) {
+          // Debug log
+          console.log("Current questions count:", questions.length);
+          console.log("Stored questions count:", parsedQuestions.length);
+
+          // Only update if there are questions in storage
+          if (parsedQuestions.length > 0) {
             console.log(
               "Updating questions from storage, new count:",
               parsedQuestions.length,
@@ -154,29 +169,41 @@ export default function QuestionPage() {
               questions.length
             );
 
-            // Get only the new questions
-            const newQuestions = parsedQuestions.slice(questions.length);
+            // Check if we have more questions than before
+            if (parsedQuestions.length > questions.length) {
+              // Get the existing shuffled questions
+              const existingShuffledQuestions = [...questions];
 
-            // Randomize answers for just the new questions
-            const newQuestionsWithRandomizedAnswers: QuestionWithShuffledAnswers[] =
-              newQuestions.map((q) => ({
-                ...q,
-                shuffledAnswers: [q.correctAnswer, ...q.incorrectAnswers].sort(
-                  () => Math.random() - 0.5
-                ),
-              }));
+              // Only shuffle the new questions
+              const newQuestions = parsedQuestions.slice(questions.length);
+              const newShuffledQuestions: QuestionWithShuffledAnswers[] =
+                newQuestions.map((q) => ({
+                  ...q,
+                  shuffledAnswers: [
+                    q.correctAnswer,
+                    ...q.incorrectAnswers,
+                  ].sort(() => Math.random() - 0.5),
+                }));
 
-            // Append the new questions to our existing ones
-            setQuestions((prevQuestions) => [
-              ...prevQuestions,
-              ...newQuestionsWithRandomizedAnswers,
-            ]);
+              // Combine existing and new questions
+              const combinedQuestions = [
+                ...existingShuffledQuestions,
+                ...newShuffledQuestions,
+              ];
 
-            // Show a notification about new questions
-            setShowLoadedMessage(true);
-            setTimeout(() => {
-              setShowLoadedMessage(false);
-            }, 20000);
+              // Update the state and storage
+              setQuestions(combinedQuestions);
+              sessionStorage.setItem(
+                "quiz_shuffled_questions",
+                JSON.stringify(combinedQuestions)
+              );
+
+              // Show a notification about new questions
+              setShowLoadedMessage(true);
+              setTimeout(() => {
+                setShowLoadedMessage(false);
+              }, 20000);
+            }
           }
         } catch (error) {
           console.error("Error parsing stored questions:", error);
@@ -257,7 +284,6 @@ export default function QuestionPage() {
           }
 
           // Store in session storage
-          // Store both answers and questions to preserve shuffled answers
           sessionStorage.setItem(
             "quiz_answers",
             JSON.stringify(
@@ -270,7 +296,13 @@ export default function QuestionPage() {
               )
             )
           );
-          sessionStorage.setItem("quiz_questions", JSON.stringify(questions));
+
+          // We don't need to update the quiz_questions here as it would cause reshuffling
+          // Just keep our already shuffled questions in storage
+          sessionStorage.setItem(
+            "quiz_shuffled_questions",
+            JSON.stringify(questions)
+          );
 
           return 0;
         }
