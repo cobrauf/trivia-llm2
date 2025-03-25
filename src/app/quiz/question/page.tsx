@@ -97,6 +97,14 @@ export default function QuestionPage() {
   const handleBackConfirm = () => {
     setShowBackConfirmation(false);
     router.push("/");
+    // Clear all quiz-related session storage
+    sessionStorage.removeItem("quiz_questions");
+    sessionStorage.removeItem("quiz_shuffled_questions");
+    sessionStorage.removeItem("quiz_answers");
+    sessionStorage.removeItem("quiz_complete");
+    sessionStorage.removeItem("quiz_questions_total");
+    // Force a page reload to clear any lingering state
+    window.location.reload();
   };
 
   const handleBackCancel = () => {
@@ -207,7 +215,7 @@ export default function QuestionPage() {
               setShowLoadedMessage(true);
               setTimeout(() => {
                 setShowLoadedMessage(false);
-              }, 5000);
+              }, 500000);
             }
           }
         } catch (error) {

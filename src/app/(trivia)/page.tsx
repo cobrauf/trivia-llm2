@@ -125,6 +125,7 @@ export default function Home() {
             setIsGenerating(false);
             setLoadingStatus(undefined);
             router.push("/");
+            window.location.reload();
           }}
         />
       )}
