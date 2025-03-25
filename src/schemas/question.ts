@@ -2,7 +2,7 @@ import { z } from "zod";
 import { QUIZ_CONSTANTS } from "@/lib/quiz";
 
 export const QuestionGenerationSchema = z.object({
-  topic: z.string().min(1).max(100),
+  topic: z.string().min(1).max(24, "Topic must not exceed 24 characters"),
   difficulty: z.enum([
     QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ROOKIE,
     QUIZ_CONSTANTS.DIFFICULTY_LEVELS.PRO,
