@@ -365,9 +365,9 @@ export default function QuestionPage() {
           <button
             onClick={() => handleNavigation("back")}
             disabled={currentQuestionIndex === 0}
-            className="px-4 py-1 rounded border-0 border-white transition-colors bg-purple-900 hover:bg-purple-700 disabled:bg-gray-600 disabled:hover:bg-gray-600"
+            className="px-4 py-1 rounded border-0 border-white transition-colors bg-purple-900 hover:bg-purple-700 disabled:bg-gray-500"
           >
-            Prev
+            &lt; Prev
           </button>
           <div className="text-center text-sm">
             {/* <div>Question</div> */}
@@ -405,7 +405,7 @@ export default function QuestionPage() {
             currentQuestionIndex === questions.length - 1 &&
             !isLoadingMore
               ? "Score"
-              : "Next"}
+              : "Next >"}
           </button>
         </div>
 
