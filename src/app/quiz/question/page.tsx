@@ -25,7 +25,12 @@ const useTypewriter = (text: string, questionIndex: number, speed = 50) => {
   const startTyping = useCallback(() => {
     if (!text) return;
 
-    // Remove duplicate check logic - always type out the question regardless of if we've seen it
+    // Show text immediately if we've seen this question before
+    if (seenQuestionsRef.current.has(questionIndex)) {
+      setDisplayedText(text);
+      return;
+    }
+
     setIsTyping(true);
     let currentText = "";
     let index = 0;
@@ -352,7 +357,7 @@ export default function QuestionPage() {
           <button
             onClick={() => handleNavigation("back")}
             disabled={currentQuestionIndex === 0}
-            className="px-4 py-2 rounded border-0 border-white transition-colors bg-purple-900 hover:bg-purple-700 disabled:bg-gray-600 disabled:hover:bg-gray-600"
+            className="px-4 py-1 rounded border-0 border-white transition-colors bg-purple-900 hover:bg-purple-700 disabled:bg-gray-600 disabled:hover:bg-gray-600"
           >
             Prev
           </button>
@@ -373,7 +378,7 @@ export default function QuestionPage() {
                 (q) => q.questionIndex === currentQuestionIndex
               )
             }
-            className={`px-4 py-2 rounded border-0 border-white transition-colors
+            className={`px-4 py-1 rounded border-0 border-white transition-colors
               ${
                 answeredQuestions.some(
                   (q) => q.questionIndex === currentQuestionIndex
