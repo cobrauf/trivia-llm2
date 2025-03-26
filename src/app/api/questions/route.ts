@@ -43,8 +43,19 @@ export async function POST(request: Request) {
         console.log("Using cached request for streaming");
       } else {
         console.log("Starting new request to OpenRouter for streaming");
-        // Create and cache the generator
-        const generator = generateQuestionsStream(generatorParams);
+      }
+
+      // Use a TransformStream to convert the AsyncGenerator to a proper stream
+      const { readable, writable } = new TransformStream();
+      const writer = writable.getWriter();
+      const encoder = new TextEncoder();
+
+      // Create and cache the generator if needed
+      if (!requestCache.has(cacheKey)) {
+        const generator = generateQuestionsStream(generatorParams, (status) => {
+          // Send status updates through the stream
+          writer.write(encoder.encode(JSON.stringify({ status }) + "\n"));
+        });
         requestCache.set(cacheKey, generator);
 
         // Remove from cache after a reasonable timeout (5 minutes)
@@ -56,13 +67,8 @@ export async function POST(request: Request) {
       // Get the generator
       const questionsStream = requestCache.get(cacheKey)!;
 
-      // Use a TransformStream to convert the AsyncGenerator to a proper stream
-      const { readable, writable } = new TransformStream();
-      const writer = writable.getWriter();
-
       // Process the generator in a separate async task
       (async () => {
-        const encoder = new TextEncoder();
         console.log("Starting stream processing");
 
         try {

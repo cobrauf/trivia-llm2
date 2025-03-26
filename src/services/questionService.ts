@@ -7,6 +7,7 @@ interface QuestionGenerationProgress {
     current: number;
     total: number;
   };
+  status?: "connecting" | "generating" | "fallback";
 }
 
 export async function generateQuestionsSequentially(
@@ -119,12 +120,26 @@ export async function generateQuestionsSequentially(
                 line.slice(0, 50) + (line.length > 50 ? "..." : "")
               );
               const data = JSON.parse(line);
-              
+
+              // Handle status updates
+              if (data.status) {
+                onProgress({
+                  questions: allQuestions,
+                  isComplete: false,
+                  progress: {
+                    current: allQuestions.length,
+                    total: params.questionCount,
+                  },
+                  status: data.status,
+                });
+                continue;
+              }
+
               // Log entire response data for debugging
               console.log("==== FULL LLM RESPONSE ====");
               console.log(JSON.stringify(data, null, 2));
               console.log("==== END FULL LLM RESPONSE ====");
-              
+
               console.log("Parsed data:", data);
 
               // Mark that we've received valid data
@@ -139,13 +154,16 @@ export async function generateQuestionsSequentially(
               // Check if we received new questions
               if (data.questions && data.questions.length > 0) {
                 console.log(`Received ${data.questions.length} new questions`);
-                
+
                 // Add new questions to our collection (without duplicate checking)
                 let hasNewQuestions = false;
 
                 for (const question of data.questions) {
                   // Simply add all questions without any checks
-                  console.log("Adding question:", question.question.substring(0, 30) + "...");
+                  console.log(
+                    "Adding question:",
+                    question.question.substring(0, 30) + "..."
+                  );
                   allQuestions.push(question);
                   hasNewQuestions = true;
                 }

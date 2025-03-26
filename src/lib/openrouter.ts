@@ -229,7 +229,10 @@ async function makeRequestWithFallback<T>(
   apiUrl: string,
   headers: HeadersInit,
   requestBody: any,
-  options: { stream?: boolean } = {}
+  options: {
+    stream?: boolean;
+    onStatusChange?: (status: "connecting" | "generating" | "fallback") => void;
+  } = {}
 ): Promise<Response> {
   try {
     // Try with primary model
@@ -249,8 +252,10 @@ async function makeRequestWithFallback<T>(
       throw new Error(await response.text());
     }
 
-    // Try with fallback model
+    // Notify about switching to fallback model
     console.log("Primary model failed, trying fallback model...");
+    options.onStatusChange?.("fallback");
+
     const fallbackBody = {
       ...requestBody,
       model: LLM_MODEL_2,
@@ -299,7 +304,8 @@ export async function generateQuestions(
 
 // Update the streaming function with fallback support
 export async function* generateQuestionsStream(
-  params: QuestionGenerationParams
+  params: QuestionGenerationParams,
+  onStatusChange?: (status: "connecting" | "generating" | "fallback") => void
 ): AsyncGenerator<{ questions?: Question[]; done?: boolean; total: number }> {
   if (!USE_LOCAL_LLM && !process.env.OPENROUTER_API_KEY) {
     throw new Error("OPENROUTER_API_KEY environment variable is not set");
@@ -320,6 +326,7 @@ export async function* generateQuestionsStream(
     // Try with primary model first
     response = await makeRequestWithFallback(apiUrl, headers, body, {
       stream: true,
+      onStatusChange,
     });
   } catch (error) {
     console.error("Error connecting to LLM API:", error);

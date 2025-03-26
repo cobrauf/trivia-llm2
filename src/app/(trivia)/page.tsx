@@ -21,7 +21,7 @@ export default function Home() {
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [hasError, setHasError] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState<
-    "connecting" | "generating" | undefined
+    "connecting" | "generating" | "fallback" | undefined
   >();
 
   const handleSubmit = async () => {

@@ -10,7 +10,7 @@ interface LoadingModalProps {
   onRetry?: () => void;
   onCancel?: () => void;
   hasError?: boolean;
-  status?: "connecting" | "generating";
+  status?: "connecting" | "generating" | "fallback";
 }
 
 const LoadingSpinner = () => (
@@ -65,6 +65,8 @@ export function LoadingModal({
                 <div className="text-sm text-purple-200">
                   {status === "connecting"
                     ? "Connecting to service..."
+                    : status === "fallback"
+                    ? "Trying backup model..."
                     : "Generating questions..."}
                 </div>
               )}
