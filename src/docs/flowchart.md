@@ -30,15 +30,7 @@ Summary[Summary Page]
     %% Summary Page Flow
     Summary --> |View Results| SessionStorage
     Summary --> |Start New Round| Home
-
-    %% Storage Items
-    subgraph Session Storage
-        QuizQuestions[quiz_questions]
-        ShuffledQuestions[quiz_shuffled_questions]
-        QuizAnswers[quiz_answers]
-        QuizComplete[quiz_complete]
-        QuestionsTotal[quiz_questions_total]
-    end
+ 
 
     %% Component Relationships
     Home --> ScrollingTopics
