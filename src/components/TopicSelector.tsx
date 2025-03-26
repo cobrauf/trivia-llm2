@@ -101,7 +101,7 @@ export function TopicSelector({ value, onChange }: TopicSelectorProps) {
           }`}
         />
         {!isFocused && !value && (
-          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm text-purple-300">
+          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm text-purple-300 pointer-events-none">
             {placeholder}
             <span className="ml-0.5 animate-pulse">|</span>
           </div>
