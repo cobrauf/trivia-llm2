@@ -361,7 +361,7 @@ export default function QuestionPage() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-2xl mt-0 p-6 pt-4 rounded-xl bg-[radial-gradient(circle_at_center,theme(colors.purple.700),theme(colors.purple.900))] text-white">
         {/* Navigation */}
-        <div className="flex justify-between items-center mb-0">
+        <div className="flex justify-between items-center mb-1">
           <button
             onClick={() => handleNavigation("back")}
             disabled={currentQuestionIndex === 0}
@@ -397,7 +397,7 @@ export default function QuestionPage() {
                     : "bg-blue-500 hover:bg-blue-600"
                   : "bg-purple-800 hover:bg-purple-700"
               }
-              disabled:bg-gray-600 disabled:hover:bg-gray-600`}
+              disabled:bg-gray-500`}
           >
             {answeredQuestions.some(
               (q) => q.questionIndex === currentQuestionIndex
