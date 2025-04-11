@@ -40,7 +40,16 @@ export default function QuizSummaryPage() {
       const parsedAnswers = JSON.parse(storedAnswers);
       setQuestions(parsedQuestions);
       setAnsweredQuestions(parsedAnswers);
-      setTopic(storedTopic || "General Knowledge"); // Fallback topic if none stored
+      if (storedTopic) {
+        setTopic(storedTopic);
+      } else {
+        // If no topic in session storage, try to get it from the first question
+        if (parsedQuestions.length > 0 && parsedQuestions[0].topic) {
+          setTopic(parsedQuestions[0].topic);
+        } else {
+          setTopic("General Knowledge"); // Last resort fallback
+        }
+      }
     } catch (error) {
       console.error("Error parsing stored data:", error);
       router.replace("/");
@@ -156,12 +165,12 @@ export default function QuizSummaryPage() {
           })}
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex gap-4  max-h-12">
           <button
             onClick={() => router.push("/")}
             className="flex-1 px-6 py-3 rounded-lg border-0 border-white bg-blue-600 hover:bg-blue-700"
           >
-            Start New Round
+            New Game
           </button>
           <button
             onClick={() => setShowEmailModal(true)}
