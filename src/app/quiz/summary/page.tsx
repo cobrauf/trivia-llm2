@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Question } from "@/schemas/question";
 import type { QuestionWithShuffledAnswers } from "../question/page";
+import { EmailModal } from "@/components/EmailModal";
+import { EmailService } from "@/services/emailService";
 
 interface AnsweredQuestion {
   questionIndex: number;
@@ -19,6 +21,8 @@ export default function QuizSummaryPage() {
   >([]);
 
   const [loading, setLoading] = useState(true);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
 
   useEffect(() => {
     const storedQuestions = sessionStorage.getItem("quiz_questions");
@@ -55,6 +59,36 @@ export default function QuizSummaryPage() {
   const totalQuestions = questions.length;
   const percentage =
     totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+
+  const handleSendEmail = async (email: string) => {
+    try {
+      const payload = {
+        questions,
+        userAnswers: answeredQuestions.map(
+          ({ questionIndex, selectedAnswer, isCorrect }) => ({
+            questionIndex,
+            selectedAnswer,
+            isCorrect,
+          })
+        ),
+        summary: {
+          score,
+          totalQuestions,
+          percentage,
+        },
+        recipientEmail: email,
+      };
+
+      await EmailService.sendTriviaResults(payload);
+      setSendError(null);
+    } catch (error) {
+      console.error("Failed to send email:", error);
+      setSendError(
+        error instanceof Error ? error.message : "Failed to send email"
+      );
+      throw error;
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -117,12 +151,29 @@ export default function QuizSummaryPage() {
           })}
         </div>
 
-        <button
-          onClick={() => router.push("/")}
-          className="w-full px-6 py-3 rounded-lg border-0 border-white bg-blue-600 hover:bg-blue-700"
-        >
-          Start New Round
-        </button>
+        <div className="flex gap-4">
+          <button
+            onClick={() => router.push("/")}
+            className="flex-1 px-6 py-3 rounded-lg border-0 border-white bg-blue-600 hover:bg-blue-700"
+          >
+            Start New Round
+          </button>
+          <button
+            onClick={() => setShowEmailModal(true)}
+            className="flex-1 px-6 py-3 rounded-lg border-0 border-white bg-purple-700 hover:bg-purple-600"
+          >
+            Email Trivia
+          </button>
+        </div>
+
+        <EmailModal
+          isOpen={showEmailModal}
+          onClose={() => {
+            setShowEmailModal(false);
+            setSendError(null);
+          }}
+          onSend={handleSendEmail}
+        />
       </div>
     </div>
   );
