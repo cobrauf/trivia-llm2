@@ -108,7 +108,7 @@ export default function QuizSummaryPage() {
       <div className="w-full max-w-2xl space-y-6 p-2 rounded-xl bg-[radial-gradient(circle_at_center,theme(colors.purple.600),theme(colors.purple.900))] text-white">
         <div className="text-center mb-2">
           <h1 className="text-lg font-bold mb-0">Trivia Complete!</h1>
-          <div className="text-sm mb-1 text-purple-200">Topic: {topic}</div>
+          {/* <div className="text-sm mb-1 text-purple-200">Topic: {topic}</div> */}
           <div className="text-base">
             Score: {score} / {totalQuestions} ({percentage}%)
           </div>
@@ -176,7 +176,7 @@ export default function QuizSummaryPage() {
             onClick={() => setShowEmailModal(true)}
             className="flex-1 px-6 py-3 rounded-lg border-0 border-white bg-blue-600 hover:bg-blue-700"
           >
-            Email Trivia
+            Email Results
           </button>
         </div>
 

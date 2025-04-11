@@ -40,6 +40,15 @@ export const TOPIC_CATEGORIES: TopicCategory[] = [
       "World Records",
       "Absurd Products",
       "Famous Inventions",
+      "Internet Memes", // Modern, fun
+      "Board Games", // Specific interest, fun
+      "Anime & Manga", // Specific interest, popular
+      "K-Pop", // Modern, specific interest, popular
+      "Reality TV", // Modern, popular culture
+      "True Crime Stories", // Interesting, popular genre
+      "Social Media", // Modern, dynamic
+      "Cocktails", // Specific interest, related to Food but distinct niche
+      "Mythical Creatures",
     ],
   },
 ];

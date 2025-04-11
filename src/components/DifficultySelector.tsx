@@ -19,8 +19,7 @@ export function DifficultySelector({
   const difficultyTaglines: Record<DifficultyLevel, string> = {
     [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ROOKIE]:
       "I'm basically a potato playing this game.",
-    [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.NORMAL]:
-      "I know enough to fake it till I make it.",
+    [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.NORMAL]: "I know a thing or two.",
     [QUIZ_CONSTANTS.DIFFICULTY_LEVELS.ELITE]:
       "I've been preparing for this since birth. It's time.",
   };
