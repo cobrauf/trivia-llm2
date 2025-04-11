@@ -19,6 +19,7 @@ export default function QuizSummaryPage() {
   const [answeredQuestions, setAnsweredQuestions] = useState<
     AnsweredQuestion[]
   >([]);
+  const [topic, setTopic] = useState<string>("");
 
   const [loading, setLoading] = useState(true);
   const [showEmailModal, setShowEmailModal] = useState(false);
@@ -27,6 +28,7 @@ export default function QuizSummaryPage() {
   useEffect(() => {
     const storedQuestions = sessionStorage.getItem("quiz_questions");
     const storedAnswers = sessionStorage.getItem("quiz_answers");
+    const storedTopic = sessionStorage.getItem("quiz_topic");
 
     if (!storedQuestions || !storedAnswers) {
       router.replace("/");
@@ -38,6 +40,7 @@ export default function QuizSummaryPage() {
       const parsedAnswers = JSON.parse(storedAnswers);
       setQuestions(parsedQuestions);
       setAnsweredQuestions(parsedAnswers);
+      setTopic(storedTopic || "General Knowledge"); // Fallback topic if none stored
     } catch (error) {
       console.error("Error parsing stored data:", error);
       router.replace("/");
@@ -63,6 +66,7 @@ export default function QuizSummaryPage() {
   const handleSendEmail = async (email: string) => {
     try {
       const payload = {
+        topic,
         questions,
         userAnswers: answeredQuestions.map(
           ({ questionIndex, selectedAnswer, isCorrect }) => ({
@@ -95,6 +99,7 @@ export default function QuizSummaryPage() {
       <div className="w-full max-w-2xl space-y-6 p-2 rounded-xl bg-[radial-gradient(circle_at_center,theme(colors.purple.600),theme(colors.purple.900))] text-white">
         <div className="text-center mb-2">
           <h1 className="text-lg font-bold mb-0">Trivia Complete!</h1>
+          <div className="text-sm mb-1 text-purple-200">Topic: {topic}</div>
           <div className="text-base">
             Score: {score} / {totalQuestions} ({percentage}%)
           </div>
@@ -160,7 +165,7 @@ export default function QuizSummaryPage() {
           </button>
           <button
             onClick={() => setShowEmailModal(true)}
-            className="flex-1 px-6 py-3 rounded-lg border-0 border-white bg-purple-700 hover:bg-purple-600"
+            className="flex-1 px-6 py-3 rounded-lg border-0 border-white bg-blue-600 hover:bg-blue-700"
           >
             Email Trivia
           </button>

@@ -8,6 +8,7 @@ interface EmailAnsweredQuestion {
 }
 
 interface EmailPayload {
+  topic: string;
   questions: QuestionWithShuffledAnswers[];
   userAnswers: EmailAnsweredQuestion[];
   summary: {

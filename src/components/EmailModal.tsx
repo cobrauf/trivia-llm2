@@ -45,7 +45,7 @@ export function EmailModal({ isOpen, onClose, onSend }: EmailModalProps) {
 
       {/* Modal */}
       <div className="relative z-10 w-full max-w-md space-y-6 p-8 mx-8 rounded-xl bg-[radial-gradient(circle_at_center,theme(colors.purple.600),theme(colors.purple.900))] text-white">
-        <div className="text-lg mb-4 text-center">Send Trivia Results</div>
+        <div className="text-lg mb-4 text-center">Send trivia results to:</div>
 
         <div className="space-y-4">
           <input
