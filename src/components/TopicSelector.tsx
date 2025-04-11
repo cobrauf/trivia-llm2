@@ -50,7 +50,7 @@ export function TopicSelector({ value, onChange }: TopicSelectorProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState(false);
   const placeholder = useTypewriterPlaceholder(
-    "Enter any topic (e.g. video games)"
+    "Enter any topic or choose one from above."
   );
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {

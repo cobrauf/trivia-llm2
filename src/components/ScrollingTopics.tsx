@@ -32,8 +32,14 @@ export function ScrollingTopics({ onTopicSelect }: ScrollingTopicsProps) {
 
   const getScrollDuration = (topics: string[]) => {
     // Calculate approximate width (each topic ~150px + gap)
-    const distance = topics.length * 120; // reduced from 170 to make buttons scroll faster
-    return distance / 100; // Speed factor - increased denominator from 100 to 200 to make faster
+    // Increase the estimated width per topic to ensure full visibility
+    const averageTopicWidth = 150; // px (including gap)
+    const totalWidth = topics.length * averageTopicWidth;
+
+    // Slower speed for better readability (smaller denominator = slower speed)
+    const speedFactor = 20; // Reduced from 100 for slower scrolling
+
+    return totalWidth / speedFactor;
   };
 
   const row1Duration = getScrollDuration(categoryTopics[0]);
@@ -51,6 +57,7 @@ export function ScrollingTopics({ onTopicSelect }: ScrollingTopicsProps) {
               style={{
                 animation: `scroll-right ${row1Duration}s linear infinite`,
                 willChange: "transform",
+                width: "fit-content", // Ensure container fits all content
               }}
             >
               {/* Show the topics once */}
@@ -80,6 +87,7 @@ export function ScrollingTopics({ onTopicSelect }: ScrollingTopicsProps) {
               style={{
                 animation: `scroll-left ${row2Duration}s linear infinite`,
                 willChange: "transform",
+                width: "fit-content", // Ensure container fits all content
               }}
             >
               {/* Show the topics once */}
