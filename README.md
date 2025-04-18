@@ -13,3 +13,10 @@ Users can customize quiz sessions by selecting a topic and difficulty level. The
 - OpenRouter API
 - Zod for schema validation
 - n8n for email automation
+
+## Screenshots
+
+![Screenshot 1](public/imgs-repo/2.PNG)
+![Screenshot 2](public/imgs-repo/3.PNG)
+![Screenshot 3](public/imgs-repo/4.PNG)
+![Screenshot 4](public/imgs-repo/5.PNG)
