@@ -429,7 +429,7 @@ export default function QuestionPage() {
         <div className="h-[120px] mb-1 mt-4 flex items-start justify-left">
           <div
             className={`text-left transition-all ${
-              typedQuestion.length > 150
+              typedQuestion.length > 100
                 ? "text-base"
                 : typedQuestion.length > 50
                 ? "text-lg"
