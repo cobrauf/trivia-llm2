@@ -16,7 +16,7 @@ Users can customize quiz sessions by selecting a topic and difficulty level. The
 
 ## Screenshots
 
-![Flow Chart](public/imgs-repo/flow-chart.PNG)
+![Flow Chart](public/imgs-repo/trivia-flow.PNG)
 ![Screenshot 1](public/imgs-repo/2.PNG)
 ![Screenshot 2](public/imgs-repo/3.PNG)
 ![Screenshot 3](public/imgs-repo/4.PNG)
