@@ -1,6 +1,7 @@
 # Trivia App
 
 A dynamic, web-based trivia application built with Next.js, React, and TypeScript, powered by LLMs.
+Play it here: https://trivia-llm2.vercel.app/
 
 Users can customize quiz sessions by selecting a topic and difficulty level. The app fetches questions on the fly using streaming LLM calls, tracks answers, provides immediate feedback, and summarizes results upon completion. After each game, users can email the trivia results via a separate n8n automation.
 
